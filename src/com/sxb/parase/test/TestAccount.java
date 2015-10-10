@@ -1,5 +1,8 @@
 package com.sxb.parase.test;
 
+import me.justin.parser.AccountParserResult;
+import me.justin.parser.AccountParser_v1;
+
 import com.sxb.parase.AsrResultJudge;
 import com.sxb.parase.TwoValue;
 
@@ -67,13 +70,19 @@ public class TestAccount {
         test("老张孩子结婚，礼金500元。", "500.00");
     }
     private static void test(String input, String expect) {
-        TwoValue<Integer, String> ret = AsrResultJudge.paraseContent(input);
-        if (ret.b != null && !(ret.b).equals(expect)) {
+        AccountParserResult result = AccountParser_v1.parse(input);
+        String amountString = String.format("%.2f", result.getAmount());
+        if (!amountString.equals(expect)) {
             System.err.format("Input:%s \tOutput: type:%s \t%s != %s \n",
-                    input, type_strs[ret.a], ret.b, expect);
+                    input, result.getTypedescription(), amountString, expect);
         } else {
             System.out.format("Input:%s \tOutput: type:%s \t%s == %s \n",
-                    input, type_strs[ret.a], ret.b, expect);
+                    input, result.getTypedescription(), amountString, expect);
         }
+    }
+    public static void main(String[] args) {
+//        testAccout();
+        test("支出一笔：刚才买菜花了一百三。一个鸡九十，三种菜花了四十。", "130.00");
+        test("收入一笔：老陈交给我五千，说里面有老李的三千和老陈的两千", "5000.00");
     }
 }

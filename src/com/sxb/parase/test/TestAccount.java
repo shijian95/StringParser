@@ -2,9 +2,9 @@ package com.sxb.parase.test;
 
 import me.justin.parser.AccountParserResult;
 import me.justin.parser.AccountParser_v1;
+import me.justin.parser.AsrResultJudge;
+import me.justin.parser.TwoValue;
 
-import com.sxb.parase.AsrResultJudge;
-import com.sxb.parase.TwoValue;
 
 
 public class TestAccount {
@@ -36,7 +36,7 @@ public class TestAccount {
         test("今天银行存入7000元是公司工资", "7000.00");
         test("昨天银行扣款2350元房贷", "2350.00");
         test("十万块钱存款到期，收入一笔存款利息325元", "325.00");
-        test("买了寿山石花", "0");
+        test("买了寿山石花", "0.00");
         test("花了7200，买了一块寿山石", "7200.00");
         test("买了一块寿山石花了7200", "7200.00");
         test("小秘跑步回家买了3块糖给老杜吃了2块拿了5块钱", "5.00");
@@ -82,7 +82,8 @@ public class TestAccount {
     }
     public static void main(String[] args) {
 //        testAccout();
-        test("支出一笔：刚才买菜花了一百三。一个鸡九十，三种菜花了四十。", "130.00");
-        test("收入一笔：老陈交给我五千，说里面有老李的三千和老陈的两千", "5000.00");
+        test("买了寿山石花", "0.00");
+//        test("支出一笔：刚才买菜花了一百三。一个鸡九十，三种菜花了四十。", "130.00");
+//        test("收入一笔：老陈交给我五千，说里面有老李的三千和老陈的两千", "5000.00");
     }
 }

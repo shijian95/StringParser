@@ -1,4 +1,4 @@
-package com.sxb.parase;
+package me.justin.parser;
 
 import java.util.ArrayList;
 import java.util.Calendar;

@@ -1,22 +1,16 @@
 package com.sxb.parase.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import me.justin.parser.ParaseResult;
+import me.justin.parser.Parser;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import com.sxb.parase.AsrResultParase;
 import com.sxb.parase.data.Account;
-import com.sxb.parase.data.ParaseResult;
 
 public class AccountTest {
-
-	@Before
-	public void setUp() throws Exception {
-	}
-
 	private void testAccout(String content, double expect_amount, int except_type) {
-		ParaseResult result = AsrResultParase.paraseContent(content);
+		ParaseResult result = Parser.paraseContent(content);
 		assertEquals(ParaseResult.TYPE_ACCOUNT, result.getType());
 		Account account = (Account) result.getObject();
 		assertEquals(expect_amount , account.getAmount(), 0.001);
@@ -30,7 +24,7 @@ public class AccountTest {
 
 	@Test
 	public void testAccount2() {
-		ParaseResult result = AsrResultParase.paraseContent("今上午交电费70元");
+		ParaseResult result = Parser.paraseContent("今上午交电费70元");
 		assertEquals(ParaseResult.TYPE_ACCOUNT, result.getType());
 		Account account = (Account) result.getObject();
 		assertEquals(70.00 , account.getAmount(), 0.001);
@@ -39,7 +33,7 @@ public class AccountTest {
 	
 	@Test
 	public void testAccount3() {
-		ParaseResult result = AsrResultParase.paraseContent("赌马中彩10000元");
+		ParaseResult result = Parser.paraseContent("赌马中彩10000元");
 		assertEquals(ParaseResult.TYPE_ACCOUNT, result.getType());
 		Account account = (Account) result.getObject();
 		assertEquals(10000 , account.getAmount(), 0.001);

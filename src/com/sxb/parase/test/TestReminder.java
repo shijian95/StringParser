@@ -2,11 +2,12 @@ package com.sxb.parase.test;
 
 import java.util.Calendar;
 
-import com.sxb.parase.AsrReminderResultParase;
-import com.sxb.parase.AsrResultParase;
+import me.justin.parser.AsrReminderResultParase;
+import me.justin.parser.ParaseResult;
+import me.justin.parser.Parser;
+
 import com.sxb.parase.data.Alarm;
 import com.sxb.parase.data.Alarm.DaysOfWeek;
-import com.sxb.parase.data.ParaseResult;
 
 public class TestReminder {
     final static String type_strs[] = { "", "提醒", "收入", "支出", "备忘" };
@@ -1128,7 +1129,7 @@ public class TestReminder {
     }
 
     public static void assertReminder(String input, Alarm expect) {
-    	ParaseResult item = AsrResultParase.paraseContent(input);
+    	ParaseResult item = Parser.paraseContent(input);
          Alarm alarm;
          if (item.getType() == ParaseResult.TYPE_REMIND) {
              alarm = (Alarm) item.getObject();

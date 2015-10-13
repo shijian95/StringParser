@@ -1,13 +1,15 @@
-package com.sxb.parase.data;
+package me.justin.parser;
 
 public class ParaseResult {
-    public final static int TYPE_REMIND = 1;
-    public final static int TYPE_ACCOUNT = 2;
-    public final static int TYPE_MEMO = 4;
-    
-    public final static int TYPE_INCOME = 5;
-    public final static int TYPE_EXPAND = 6;
 
+    
+    public final static int TYPE_REMIND = 1;
+    public final static int TYPE_INCOME = 2;
+    public final static int TYPE_EXPAND = 3;
+    public final static int TYPE_UNKNOWN = 4;
+    
+    public final static int TYPE_MEMO = 5;
+    public final static int TYPE_ACCOUNT = 6;
     
     private int mType;
     private Object mObject;

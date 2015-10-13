@@ -1,4 +1,4 @@
-package com.sxb.parase;
+package me.justin.parser;
 
 public class KeywordsConf {
 

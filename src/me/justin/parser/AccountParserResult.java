@@ -29,4 +29,17 @@ public class AccountParserResult {
         }
         return des;
     }
+    
+    public boolean isAccount() {
+        return type == AccountParser_v1.TYPE_EXPAND || type == AccountParser_v1.TYPE_INCOME;
+    }
+    
+    public boolean isExpand(){
+        return type == AccountParser_v1.TYPE_EXPAND; 
+    }
+    
+    public boolean isIncome() {
+        return type == AccountParser_v1.TYPE_INCOME;
+    }
+    
 }

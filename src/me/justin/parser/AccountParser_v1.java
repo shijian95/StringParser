@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sxb.parase.TwoValue;
 
 /**
  * 识别结果判断
@@ -16,7 +15,7 @@ import com.sxb.parase.TwoValue;
 public class AccountParser_v1 {
 
     private final static String TAG = "AccountParser";
-    private final static boolean DEBUG = true;
+    private final static boolean DEBUG = false;
     public static String typeString = "";
     public final static int TYPE_REMIND = 1;
     public final static int TYPE_INCOME = 2;
@@ -109,16 +108,19 @@ public class AccountParser_v1 {
         return false;
     }
     final static String[] REGS_STRINGS_EXCULDE={
-        "[一两二三四五六七八九十零\\d]+[笔把个位人次批伙场]" 
+        "[一两二三四五六七八九十零\\d]+[笔把个位人次批伙场双]" 
         + "|" + "[一两二三四五六七八九十零\\d]+月[一两二三四五六七八九十零\\d]+日"
         + "|" + "[一两二三四五六七八九十零\\d]+年"
-        + "|三脚架|四道口"
     };
+    
     final static String REGS_EXPAND[] = {
         ".*交.{0,3}费.*",
         "花[\\d.]",
         "花了[\\d.]"
         };
+    /*
+     * 
+     * */
     final static Map<String, Integer> KEY_WORD_2 = new HashMap<String, Integer>() {
         private static final long serialVersionUID = 2L;
         {
@@ -135,8 +137,12 @@ public class AccountParser_v1 {
     final static Map<String, Integer> KEY_WORD_3 = new HashMap<String, Integer>() {
         private static final long serialVersionUID = 3L;
         {
+            put("交给我", INCOME_WORD);
             put("领工资", INCOME_WORD);
             put("开销了", EXPAND_WORD);
+            put("狂宰我", EXPAND_WORD);
+            put("三脚架", EXCULDE_WORD);
+            put("四道口", EXCULDE_WORD);
         }
     };
     final static Map<String, Integer> KEY_WORD_4 = new HashMap<String, Integer>() {
@@ -196,36 +202,43 @@ public class AccountParser_v1 {
     
     public static AccountParserResult parse(String content) {
         AccountParserResult result = new AccountParserResult();
-        int type = TYPE_UNKNOWN;// = paraseContentType(content);
+        int type = TYPE_UNKNOWN;
         result.setType(type);
         String str1 = removeExcludeWords(content);
+        
         ArrayList<Element>  words1 = split_by_key_word(str1);
+        
         ArrayList<Element>  words2 = new ArrayList<>();
         for (Element word: words1) {
             if (word.type == CONTENT) {
-                ArrayList<Element>  words3 = split1(word.content);
+                ArrayList<Element>  words3 = split_by_digit(word.content);
                 words2.addAll(words3);
             } else {
                 words2.add(word);
             }
         }
-        if (DEBUG) System.out.println("查找金额");
-        int i = 0;
-        ArrayList<AmountPos> ap = new ArrayList<>();
+        
+        if (DEBUG) {
+            System.out.println("查找金额");
+        }
+        int count = 0;
+        Double amount = 0.00;
+        ArrayList<AmountPos> amounts = new ArrayList<>();
         for (Element element : words2) {
             if (DEBUG) System.out.format("%s:%s \t\n", TYPE_DESCRIPTION[element.type],element.content );
             if (element.type == DIGIT) {
                 String amountStr = convert2Amount(element.content);
                 if (amountStr!=null && !amountStr.equals("")){
                     element.content = amountStr;
-                    Double amount = Double.parseDouble(amountStr);
-                    ap.add(new AmountPos(i, amount));
+                    amount = Double.parseDouble(amountStr);
+                    amounts.add(new AmountPos(count, amount));
                 }
             } else if (element.type == INCOME_WORD) {
                 type = TYPE_INCOME;
             } else if (element.type == EXPAND_WORD) {
                 type = TYPE_EXPAND;
             }
+            count++;
         }
         if (DEBUG) {
             System.out.println("最终结果");
@@ -234,36 +247,51 @@ public class AccountParser_v1 {
                         TYPE_DESCRIPTION[e.type], e.content);
             }
         }
-        if (ap.size() == 0){
+        if (amounts.size() == 0){
             //没有找到任何金额
             result.setType(TYPE_UNKNOWN);
             result.setAmount(0.00);
             return result;
         }
-        int type1 = paraseContentType(content);
         
-        if (type == TYPE_UNKNOWN) {
-            for (String regex : expand_pattern_keywords) {
-                Pattern pattern = Pattern.compile(regex);
-                Matcher matcher = pattern.matcher(content);
-                if (matcher.find()) {
-                    type = TYPE_EXPAND;
+        if (amounts.size() == 1){
+            result.setType(type);
+            result.setAmount(amounts.get(0).amount);
+        } else if (amounts.size() > 1) {
+            int size = amounts.size();
+            for (int i = 0; i < size; i++) {
+                AmountPos ap = amounts.get(i);
+                int pos = ap.postion;
+                if (pos>0) {
+                    Element preElement = words2.get(pos-1);
+                    if (preElement.type == EXPAND_WORD || preElement.type == INCOME_WORD) {
+                        amount = ap.amount;
+                        break;
+                    }
                 }
             }
         }
-        
-        if (ap.size() == 1){
-            result.setType(type);
-            result.setAmount(ap.get(0).amount);
-        } else if (ap.size() > 1) {
+        if (type == TYPE_UNKNOWN) {
             StringBuilder sBuilder = new StringBuilder();
             for (Element e : words2) {
                 sBuilder.append(e.content);
             }
             System.out.println("结果：" + sBuilder.toString());
-            
+            for (String regex : expand_pattern_keywords) {
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(sBuilder.toString());
+                if (matcher.find()) {
+                    type = TYPE_EXPAND;
+                }
+            }
+        }
+        //if can't find the type, then set a default type
+        if (type == TYPE_UNKNOWN) {
+            type = TYPE_EXPAND;
         }
 
+        result.setType(type);
+        result.setAmount(amount);
         return result;
     }
     public static TwoValue<Integer, String> paraseContent(String content) {
@@ -533,6 +561,7 @@ public class AccountParser_v1 {
         }
         int i = 0;
         ret = content.replaceAll(REGS_STRINGS_EXCULDE[0], "|");
+        
         if (DEBUG) {
             System.out.println("ExcludeWords-2:" + ret + " :");
         }
@@ -668,11 +697,14 @@ public class AccountParser_v1 {
             pattern = Pattern.compile(reg);
             searchExculdeWord(content, pattern, words);
         }
-        System.out.print("\n");
-        for (Element e: words) {
-            System.out.println(i++ +":cotent:" +e.content + " 类型："+TYPE_DESCRIPTION[e.type]);
+        if (DEBUG) {
+            System.out.print("\n");
+            for (Element e : words) {
+                System.out.println(i++ + "查找干扰字:cotent:" + e.content + " 类型："
+                        + TYPE_DESCRIPTION[e.type]);
+            }
+            System.out.print("\n");
         }
-        System.out.print("\n"); 
         return words;
     }
     private static int searchExculdeWord(String content, Pattern pattern, ArrayList<Element> words) {
@@ -692,7 +724,7 @@ public class AccountParser_v1 {
         return 0;
     }
     
-    static ArrayList<Element> split1(String content){
+    static ArrayList<Element> split_by_digit(String content){
         ArrayList<Element> words = new ArrayList<Element>();
         StringBuffer sb = new StringBuffer();
         char start = content.charAt(0);
@@ -723,9 +755,13 @@ public class AccountParser_v1 {
             words.add(e);
             sb = null;
         }
-        int i = 0;
-        for (Element e: words) {
-            System.out.println(i+":cotent:" +e.content + " 类型："+e.type);
+        if (DEBUG) {
+            int i = 0;
+            System.out.println("分词-数字:");
+            for (Element e : words) {
+                System.out.println(i++ + ":cotent:" + e.content + " 类型："
+                        + e.type);
+            }
         }
         return words;
     }

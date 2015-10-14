@@ -8,7 +8,7 @@ import java.util.Map;
 import com.sxb.parase.data.Alarm;
 import com.sxb.parase.data.Alarm.DaysOfWeek;
 
-public class AsrReminderResultParase {
+public class ReminderParser {
     private final static boolean DEBUG = true;
 
     final static int LETTER = 0;
@@ -703,7 +703,7 @@ public class AsrReminderResultParase {
     public static Alarm parseReminderResult(String content) {
         ArrayList<Element> words = split1(content);
         words = split2(words);
-        AsrReminderResultParase parase = new AsrReminderResultParase();
+        ReminderParser parase = new ReminderParser();
         return parase.pickTime(content, words);
     }
 

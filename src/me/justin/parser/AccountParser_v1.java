@@ -113,10 +113,16 @@ public class AccountParser_v1 {
         + "|" + "[一两二三四五六七八九十零\\d]+年"
     };
     
-    final static String REGS_EXPAND[] = {
-        ".*交.{0,3}费.*",
-        "花[\\d.]",
-        "花了[\\d.]"
+    final static String PATTERNS_EXPAND[] = {
+        "(?<=花)\\d+\\.\\d{2}",
+        "(?<=花了)\\d+\\.\\d{2}"
+
+        };
+    
+    final static String PATTERNS_INCOME[] = {
+        "(?<=给我)\\d+\\.\\d{2}",
+        "(?<=给了我)\\d+\\.\\d{2}",
+        "(?<=拾到)\\d+\\.\\d{2}"
         };
     /*
      * 
@@ -131,7 +137,15 @@ public class AccountParser_v1 {
             put("礼金", EXPAND_WORD);
             put("分摊", EXPAND_WORD);
             put("吃了", EXPAND_WORD);
+            put("花销", EXPAND_WORD);
+            put("扣款", EXPAND_WORD);
             put("工资", INCOME_WORD);
+            put("存入", INCOME_WORD);
+            put("赢利", INCOME_WORD);
+            put("入账", INCOME_WORD);
+            put("进账", INCOME_WORD);
+            put("分红", INCOME_WORD);
+            put("挣了", INCOME_WORD);
         }
     };
     final static Map<String, Integer> KEY_WORD_3 = new HashMap<String, Integer>() {
@@ -139,6 +153,7 @@ public class AccountParser_v1 {
         {
             put("交给我", INCOME_WORD);
             put("领工资", INCOME_WORD);
+            put("赢利了", INCOME_WORD);
             put("开销了", EXPAND_WORD);
             put("狂宰我", EXPAND_WORD);
             put("三脚架", EXCULDE_WORD);
@@ -260,31 +275,52 @@ public class AccountParser_v1 {
         } else if (amounts.size() > 1) {
             int size = amounts.size();
             for (int i = 0; i < size; i++) {
-                AmountPos ap = amounts.get(i);
-                int pos = ap.postion;
-                if (pos>0) {
-                    Element preElement = words2.get(pos-1);
-                    if (preElement.type == EXPAND_WORD || preElement.type == INCOME_WORD) {
-                        amount = ap.amount;
+                StringBuilder sBuilder = new StringBuilder();
+                for (Element e : words2) {
+                    sBuilder.append(e.content);
+                }
+                System.out.println("结果：" + sBuilder.toString());
+                boolean pattern_matched = false;
+                for (String regex : PATTERNS_EXPAND) {
+                    Pattern pattern = Pattern.compile(regex);
+                    Matcher matcher = pattern.matcher(sBuilder.toString());
+                    if (matcher.find()) {
+                        type = TYPE_EXPAND;
+                        String s = matcher.group();
+                        System.out.println("金额：" + s);
+                        amount = Double.parseDouble(s);
+                        pattern_matched = true;
                         break;
+                    }
+                }
+                
+                for (String regex : PATTERNS_INCOME) {
+                    Pattern pattern = Pattern.compile(regex);
+                    Matcher matcher = pattern.matcher(sBuilder.toString());
+                    if (matcher.find()) {
+                        type = TYPE_INCOME;
+                        String s = matcher.group();
+                        System.out.println("金额：" + s);
+                        amount = Double.parseDouble(s);
+                        pattern_matched = true;
+                        break;
+                    }
+                }
+                
+                if (pattern_matched == false) {
+                    AmountPos ap = amounts.get(i);
+                    int pos = ap.postion;
+                    if (pos>0) {
+                        Element preElement = words2.get(pos-1);
+                        if (preElement.type == EXPAND_WORD || preElement.type == INCOME_WORD) {
+                            amount = ap.amount;
+                            break;
+                        }
                     }
                 }
             }
         }
-        if (type == TYPE_UNKNOWN) {
-            StringBuilder sBuilder = new StringBuilder();
-            for (Element e : words2) {
-                sBuilder.append(e.content);
-            }
-            System.out.println("结果：" + sBuilder.toString());
-            for (String regex : expand_pattern_keywords) {
-                Pattern pattern = Pattern.compile(regex);
-                Matcher matcher = pattern.matcher(sBuilder.toString());
-                if (matcher.find()) {
-                    type = TYPE_EXPAND;
-                }
-            }
-        }
+
         //if can't find the type, then set a default type
         if (type == TYPE_UNKNOWN) {
             type = TYPE_EXPAND;

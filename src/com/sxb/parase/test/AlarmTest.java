@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Calendar;
 
-import me.justin.parser.ParaseResult;
+import me.justin.parser.ParseResult;
 import me.justin.parser.Parser;
 
 import org.junit.Before;
@@ -51,9 +51,9 @@ public class AlarmTest {
     }
     
     public static void assertReminder(String input, Alarm expect) {
-    	ParaseResult item = Parser.paraseContent(input);
+    	ParseResult item = Parser.paraseContent(input);
          Alarm alarm;
-         if (item.getType() == ParaseResult.TYPE_REMIND) {
+         if (item.getType() == ParseResult.TYPE_REMIND) {
              alarm = (Alarm) item.getObject();
          } else {
              System.err.print("Wrong Type:" + input);

@@ -10,21 +10,21 @@ public class Parser {
         return AccountParser_v1.parse(string);
     }
     
-    public static ParaseResult RemindParser(String recFullString) {
-        ParaseResult result;
-        Alarm alarm = AsrReminderResultParase
+    public static ParseResult RemindParser(String recFullString) {
+        ParseResult result;
+        Alarm alarm = ReminderParser
                 .parseReminderResult(recFullString);
         if (alarm.type == Alarm.ALARM_TYPE_FAILED) {
             Memo memo = new Memo();
             memo.setContent(recFullString);
-            result = new ParaseResult(ParaseResult.TYPE_MEMO, memo);
+            result = new ParseResult(ParseResult.TYPE_MEMO, memo);
         } else {
             alarm.label = recFullString;
             if (alarm.type == Alarm.ALARM_TYPE_RELATIVE
                     && alarm.repeatType == Alarm.ALARM_REPEAT_TYPE_NONE) {
                 alarm.repeatType = Alarm.ALARM_REPEAT_TYPE_STOPWATCH;
             }
-            result = new ParaseResult(ParaseResult.TYPE_REMIND, alarm);
+            result = new ParseResult(ParseResult.TYPE_REMIND, alarm);
         }
         return result;
     }
@@ -41,47 +41,47 @@ public class Parser {
         if (typeId == 0)
             for (String string : KeywordsConf.reminder_keywords) {
                 if (content.contains(string)) {
-                    typeId = ParaseResult.TYPE_REMIND;
+                    typeId = ParseResult.TYPE_REMIND;
                     break;
                 }
             }
 
         // 优先关键字判断
         if (content.startsWith(KeywordsConf.expand_key)) {
-            typeId = ParaseResult.TYPE_EXPAND;
+            typeId = ParseResult.TYPE_EXPAND;
         } else if (content.startsWith(KeywordsConf.income_key)) {
-            typeId = ParaseResult.TYPE_INCOME;
+            typeId = ParseResult.TYPE_INCOME;
         }
 
         if (typeId == 0)
             for (String string : KeywordsConf.income_keywords) {
                 if (content.contains(string)) {
-                    typeId = ParaseResult.TYPE_INCOME;
+                    typeId = ParseResult.TYPE_INCOME;
                     break;
                 }
             }
         if (typeId == 0)
             for (String string : KeywordsConf.expand_keywords) {
                 if (content.contains(string)) {
-                    typeId = ParaseResult.TYPE_EXPAND;
+                    typeId = ParseResult.TYPE_EXPAND;
                     break;
                 }
             }
         if (typeId == 0)
             for (String string : KeywordsConf.expand_pattern_keywords) {
                 if (content.matches(string)) {
-                    typeId = ParaseResult.TYPE_EXPAND;
+                    typeId = ParseResult.TYPE_EXPAND;
                 }
             }
 
         if (typeId == 0) {
-            typeId = ParaseResult.TYPE_MEMO;
+            typeId = ParseResult.TYPE_MEMO;
         }
         return typeId;
     }
     
 
-    public  static ParaseResult paraseContent(String content) {
+    public  static ParseResult paraseContent(String content) {
         if (content == null) {
             return null;
         }
@@ -91,33 +91,33 @@ public class Parser {
             return null;
         }
         
-        ParaseResult result = null;
+        ParseResult result = null;
         int type = paraseContentType(recFullString);
         switch (type) {
-        case ParaseResult.TYPE_REMIND:
-            Alarm alarm = AsrReminderResultParase
+        case ParseResult.TYPE_REMIND:
+            Alarm alarm = ReminderParser
                     .parseReminderResult(recFullString);
             if (alarm.type == Alarm.ALARM_TYPE_FAILED) {
                 Memo memo = new Memo();
                 memo.setContent(recFullString);
-                result = new ParaseResult(ParaseResult.TYPE_MEMO, memo);
+                result = new ParseResult(ParseResult.TYPE_MEMO, memo);
             } else {
                 alarm.label = recFullString;
                 if (alarm.type == Alarm.ALARM_TYPE_RELATIVE
                         && alarm.repeatType == Alarm.ALARM_REPEAT_TYPE_NONE) {
                     alarm.repeatType = Alarm.ALARM_REPEAT_TYPE_STOPWATCH;
                 }
-                result = new ParaseResult(ParaseResult.TYPE_REMIND, alarm);
+                result = new ParseResult(ParseResult.TYPE_REMIND, alarm);
             }
             break;
-        case ParaseResult.TYPE_MEMO: {
+        case ParseResult.TYPE_MEMO: {
             Memo memo = new Memo();
             memo.setContent(recFullString);
-            result = new ParaseResult(ParaseResult.TYPE_MEMO, memo);
+            result = new ParseResult(ParseResult.TYPE_MEMO, memo);
             }
             break;
-        case ParaseResult.TYPE_EXPAND:
-        case ParaseResult.TYPE_INCOME:
+        case ParseResult.TYPE_EXPAND:
+        case ParseResult.TYPE_INCOME:
             {
                 Account account = new Account();
                 TwoValue<Integer, String> two = AsrResultJudge
@@ -132,11 +132,11 @@ public class Parser {
                     }
                     account.setContent(recFullString);
                     account.setAmount(Float.parseFloat(two.b));
-                    result = new ParaseResult(ParaseResult.TYPE_ACCOUNT, account);
+                    result = new ParseResult(ParseResult.TYPE_ACCOUNT, account);
                 } else {
                     Memo memo = new Memo();
                     memo.setContent(recFullString);
-                    result = new ParaseResult(ParaseResult.TYPE_MEMO, memo);
+                    result = new ParseResult(ParseResult.TYPE_MEMO, memo);
                 }
             }
             break;

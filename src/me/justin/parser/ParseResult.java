@@ -1,6 +1,6 @@
 package me.justin.parser;
 
-public class ParaseResult {
+public class ParseResult {
 
     
     public final static int TYPE_REMIND = 1;
@@ -14,7 +14,7 @@ public class ParaseResult {
     private int mType;
     private Object mObject;
     
-    public ParaseResult (int type, Object obj) {
+    public ParseResult (int type, Object obj) {
     	mType = type;
     	mObject = obj;
     }

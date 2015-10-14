@@ -2,8 +2,8 @@ package com.sxb.parase.test;
 
 import java.util.Calendar;
 
-import me.justin.parser.AsrReminderResultParase;
-import me.justin.parser.ParaseResult;
+import me.justin.parser.ReminderParser;
+import me.justin.parser.ParseResult;
 import me.justin.parser.Parser;
 
 import com.sxb.parase.data.Alarm;
@@ -901,7 +901,7 @@ public class TestReminder {
         expect.minutes = 0;
         expect.second = 0;
         if (isTimePassed(expect)) {
-            AsrReminderResultParase.addOneWeek(expect);
+            ReminderParser.addOneWeek(expect);
         }
         assertReminder("周四提醒我面试", expect);
 
@@ -1129,9 +1129,9 @@ public class TestReminder {
     }
 
     public static void assertReminder(String input, Alarm expect) {
-    	ParaseResult item = Parser.paraseContent(input);
+    	ParseResult item = Parser.paraseContent(input);
          Alarm alarm;
-         if (item.getType() == ParaseResult.TYPE_REMIND) {
+         if (item.getType() == ParseResult.TYPE_REMIND) {
              alarm = (Alarm) item.getObject();
          } else {
              System.err.print("Wrong Type:" + input);

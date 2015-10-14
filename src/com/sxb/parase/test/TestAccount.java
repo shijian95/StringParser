@@ -39,7 +39,7 @@ public class TestAccount {
         test("买了寿山石花", "0.00");
         test("花了7200，买了一块寿山石", "7200.00");
         test("买了一块寿山石花了7200", "7200.00");
-        test("小秘跑步回家买了3块糖给老杜吃了2块拿了5块钱", "5.00");
+        test("小秘跑步回家买了3块糖给老杜吃了2块花了5块钱", "5.00");
         test("收到一笔，用了1.356", "1.36");
         test("收到一笔：银行利息1.126元", "1.13");
         test("支出一笔：刚才买菜花了一百二。其中一个鸡就九十八。", "120.00");
@@ -68,6 +68,7 @@ public class TestAccount {
         test("支出十三块八", "13.80");
         test("今天老张孩子结婚，随礼500元", "500.00");
         test("老张孩子结婚，礼金500元。", "500.00");
+        test("寿山石花五十块买了一块糖", "50.00");
     }
     private static void test(String input, String expect) {
         AccountParserResult result = AccountParser_v1.parse(input);
@@ -81,8 +82,8 @@ public class TestAccount {
         }
     }
     public static void main(String[] args) {
-//        testAccout();
-        test("买了寿山石花", "0.00");
+        testAccout();
+//        test("小秘跑步回家买了3块糖给老杜吃了2块花了5块钱 ", "50.00");
 //        test("支出一笔：刚才买菜花了一百三。一个鸡九十，三种菜花了四十。", "130.00");
 //        test("收入一笔：老陈交给我五千，说里面有老李的三千和老陈的两千", "5000.00");
     }

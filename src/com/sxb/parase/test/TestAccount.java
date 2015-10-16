@@ -69,6 +69,7 @@ public class TestAccount {
         test("今天老张孩子结婚，随礼500元", "500.00");
         test("老张孩子结婚，礼金500元。", "500.00");
         test("寿山石花五十块买了一块糖", "50.00");
+        test("今天发了200块钱的补贴", "200.00");
     }
     private static void test(String input, String expect) {
         AccountParserResult result = AccountParser_v1.parse(input);

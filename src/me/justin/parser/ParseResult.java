@@ -18,6 +18,11 @@ public class ParseResult {
     	mType = type;
     	mObject = obj;
     }
+
+    public ParseResult () {
+        mType = TYPE_UNKNOWN ;
+        mObject = null;
+    }
     
 	public int getType() {
 		return mType;
@@ -32,5 +37,7 @@ public class ParseResult {
 		this.mObject = mObject;
 	}
     
-    
+    public boolean isAccount() {
+        return mType == TYPE_ACCOUNT;
+    }
 }

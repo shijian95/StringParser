@@ -130,6 +130,7 @@ public class AccountParser_v1 {
     final static Map<String, Integer> KEY_WORD_2 = new HashMap<String, Integer>() {
         private static final long serialVersionUID = 2L;
         {
+            put("亏了", EXPAND_WORD);
             put("花了", EXPAND_WORD);
             put("开销", EXPAND_WORD);
             put("还了", EXPAND_WORD);
@@ -140,6 +141,7 @@ public class AccountParser_v1 {
             put("花销", EXPAND_WORD);
             put("扣款", EXPAND_WORD);
             put("工资", INCOME_WORD);
+            put("发了", INCOME_WORD);
             put("存入", INCOME_WORD);
             put("赢利", INCOME_WORD);
             put("入账", INCOME_WORD);

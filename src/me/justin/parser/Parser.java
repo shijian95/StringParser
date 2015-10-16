@@ -6,8 +6,28 @@ import com.sxb.parase.data.Memo;
 
 public class Parser {
     
-    public static AccountParserResult AccountParser(String string) {
-        return AccountParser_v1.parse(string);
+    public static ParseResult AccountParser(String string) {
+        AccountParserResult  result2 =  AccountParser_v1.parse(string);
+        ParseResult result = new ParseResult();
+        if (result2.isAccount()) {
+            Account account = new Account();
+            if (result2.isExpand()) {
+                account.setType(Account.TYPE_EXPAND);
+            } else if (result2.isIncome()) {
+                account.setType(Account.TYPE_INCOME);
+            }
+            account.setContent(string);
+            account.setAmount(result2.getAmount());
+            result.setObject(account);
+            result.setType(ParseResult.TYPE_ACCOUNT);
+        }
+        else {
+            Memo memo = new Memo();
+            memo.setContent(string);
+            result.setType(ParseResult.TYPE_MEMO);
+            result.setObject(memo);
+        }
+        return result;
     }
     
     public static ParseResult RemindParser(String recFullString) {
@@ -80,7 +100,19 @@ public class Parser {
         return typeId;
     }
     
-
+    public  static ParseResult paraseContent(String content, int prefer_type) {
+        ParseResult result = paraseContent(content);
+        if (result.getType() == ParseResult.TYPE_MEMO) {
+            if (prefer_type == ParseResult.TYPE_REMIND) {
+                result = RemindParser(content);
+            } else if (prefer_type == ParseResult.TYPE_ACCOUNT) {
+                result = AccountParser(content);
+            }
+        }
+        
+        return result;
+    }
+    
     public  static ParseResult paraseContent(String content) {
         if (content == null) {
             return null;
@@ -119,25 +151,7 @@ public class Parser {
         case ParseResult.TYPE_EXPAND:
         case ParseResult.TYPE_INCOME:
             {
-                Account account = new Account();
-                TwoValue<Integer, String> two = AsrResultJudge
-                        .paraseContent(recFullString);
-                int type1 = two.a;
-                if (type1 == AsrResultJudge.TYPE_EXPAND ||
-                        type1 == AsrResultJudge.TYPE_INCOME) {
-                    if (type1 == AsrResultJudge.TYPE_EXPAND ) {
-                        account.setType(Account.TYPE_EXPAND);
-                    } else if (type1 == AsrResultJudge.TYPE_INCOME) {
-                        account.setType(Account.TYPE_INCOME);
-                    }
-                    account.setContent(recFullString);
-                    account.setAmount(Float.parseFloat(two.b));
-                    result = new ParseResult(ParseResult.TYPE_ACCOUNT, account);
-                } else {
-                    Memo memo = new Memo();
-                    memo.setContent(recFullString);
-                    result = new ParseResult(ParseResult.TYPE_MEMO, memo);
-                }
+                result  = AccountParser(content);
             }
             break;
         default:

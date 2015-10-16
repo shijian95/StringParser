@@ -5,7 +5,7 @@ public class KeywordsConf {
     /**
      * 此处关键字可以配置
      */
-	public final static String reminder_keywords[] = { "提醒", "闹铃", "倒计时", "喊", "叫" };
+	public final static String reminder_keywords[] = { "提醒", "闹铃", "倒计时"};
 	
 	/*
 	 * 记账关键字配置

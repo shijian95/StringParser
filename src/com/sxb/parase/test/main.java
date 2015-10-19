@@ -14,12 +14,12 @@ public class main {
 //        TestAccount.testAccout();
 //        TestReminder.testReminder();
         String result = "大家好，我来了。你是谁？,";
-        String regex = "(?<=花)\\d+\\.\\d{2}";
+        String regex = "(?<=赢钱)\\d+\\.\\d{2}";
 //        String recFullString = result.replaceAll("。|？|，|,", ""); 
 //        System.out.println(recFullString);
         
         Pattern pattern =Pattern.compile(regex);
-        Matcher matcher = pattern.matcher("花12.43买车16.36的方式发到");
+        Matcher matcher = pattern.matcher("打牌赢钱334.30");
         if (matcher.find()) {
             System.out.println(matcher.group());
         }

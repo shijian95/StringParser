@@ -108,21 +108,37 @@ public class AccountParser_v1 {
         return false;
     }
     final static String[] REGS_STRINGS_EXCULDE={
-        "[一两二三四五六七八九十零\\d]+[笔把个位人次批伙场双]" 
+        "[一两二三四五六七八九十零\\d]+[笔把个位人次批伙场双件斤]" 
         + "|" + "[一两二三四五六七八九十零\\d]+月[一两二三四五六七八九十零\\d]+日"
         + "|" + "[一两二三四五六七八九十零\\d]+年"
     };
     
     final static String PATTERNS_EXPAND[] = {
         "(?<=花)\\d+\\.\\d{2}",
-        "(?<=花了)\\d+\\.\\d{2}"
-
+        "(?<=花了)\\d+\\.\\d{2}",
+        "(?<=花费)\\d+\\.\\d{2}",
         };
     
     final static String PATTERNS_INCOME[] = {
         "(?<=给我)\\d+\\.\\d{2}",
         "(?<=给了我)\\d+\\.\\d{2}",
-        "(?<=拾到)\\d+\\.\\d{2}"
+        "(?<=拾到)\\d+\\.\\d{2}",
+        "(?<=赢钱)\\d+\\.\\d{2}",
+        "(?<=借我)\\d+\\.\\d{2}",
+        "(?<=得了)\\d+\\.\\d{2}",
+        "(?<=分利)\\d+\\.\\d{2}",
+        "(?<=回收)\\d+\\.\\d{2}",
+        "(?<=要回)\\d+\\.\\d{2}",
+        "(?<=还)\\d+\\.\\d{2}",
+        "(?<=还人民币)\\d+\\.\\d{2}",
+
+        };
+    
+    final static String PATTERNS_KEYWORD_INCOME[] = {
+        "收到.*汇款",
+        "领.*津贴",
+        "领.*补贴",
+        "收到.*定金",
         };
     /*
      * 
@@ -130,6 +146,7 @@ public class AccountParser_v1 {
     final static Map<String, Integer> KEY_WORD_2 = new HashMap<String, Integer>() {
         private static final long serialVersionUID = 2L;
         {
+            put("买了", EXPAND_WORD);
             put("亏了", EXPAND_WORD);
             put("花了", EXPAND_WORD);
             put("开销", EXPAND_WORD);
@@ -144,10 +161,12 @@ public class AccountParser_v1 {
             put("发了", INCOME_WORD);
             put("存入", INCOME_WORD);
             put("赢利", INCOME_WORD);
+            put("赢钱", INCOME_WORD);
             put("入账", INCOME_WORD);
             put("进账", INCOME_WORD);
             put("分红", INCOME_WORD);
             put("挣了", INCOME_WORD);
+            put("卖了", INCOME_WORD);
         }
     };
     final static Map<String, Integer> KEY_WORD_3 = new HashMap<String, Integer>() {
@@ -160,6 +179,8 @@ public class AccountParser_v1 {
             put("狂宰我", EXPAND_WORD);
             put("三脚架", EXCULDE_WORD);
             put("四道口", EXCULDE_WORD);
+            put("三元桥", EXCULDE_WORD);
+            put("四角楼", EXCULDE_WORD);
         }
     };
     final static Map<String, Integer> KEY_WORD_4 = new HashMap<String, Integer>() {
@@ -169,7 +190,7 @@ public class AccountParser_v1 {
             put("增收一笔", INCOME_WORD);
             put("进账一笔", INCOME_WORD);
             put("收入一笔", INCOME_WORD);
-            
+            put("领取暖费", INCOME_WORD);
             put("支出一笔", EXPAND_WORD);
             put("开销一笔", EXPAND_WORD);
         }
@@ -270,22 +291,22 @@ public class AccountParser_v1 {
             result.setAmount(0.00);
             return result;
         }
-        
+        StringBuilder sBuilder = new StringBuilder();
+        for (Element e : words2) {
+            sBuilder.append(e.content);
+        }
+        String last_string = sBuilder.toString();
+        System.out.println("结果：" + sBuilder.toString());        
         if (amounts.size() == 1){
             result.setType(type);
             result.setAmount(amounts.get(0).amount);
         } else if (amounts.size() > 1) {
             int size = amounts.size();
             for (int i = 0; i < size; i++) {
-                StringBuilder sBuilder = new StringBuilder();
-                for (Element e : words2) {
-                    sBuilder.append(e.content);
-                }
-                System.out.println("结果：" + sBuilder.toString());
                 boolean pattern_matched = false;
                 for (String regex : PATTERNS_EXPAND) {
                     Pattern pattern = Pattern.compile(regex);
-                    Matcher matcher = pattern.matcher(sBuilder.toString());
+                    Matcher matcher = pattern.matcher(last_string );
                     if (matcher.find()) {
                         type = TYPE_EXPAND;
                         String s = matcher.group();
@@ -324,8 +345,44 @@ public class AccountParser_v1 {
         }
 
         //if can't find the type, then set a default type
+        boolean pattern_matched = false;
         if (type == TYPE_UNKNOWN) {
-            type = TYPE_EXPAND;
+            for (String regex : PATTERNS_KEYWORD_INCOME) {
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(last_string);
+                if (matcher.find()) {
+                    type = TYPE_INCOME;
+                    pattern_matched = true;
+                    break;
+                }
+            }
+            if (!pattern_matched)
+            for (String regex : PATTERNS_INCOME) {
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(sBuilder.toString());
+                if (matcher.find()) {
+                    type = TYPE_INCOME;
+                    String s = matcher.group();
+                    System.out.println("收入金额：" + s);
+                    amount = Double.parseDouble(s);
+                    pattern_matched = true;
+                    break;
+                }
+            }
+            
+            if (!pattern_matched)
+            for (String regex : PATTERNS_EXPAND) {
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(sBuilder.toString());
+                if (matcher.find()) {
+                    type = TYPE_EXPAND;
+                    String s = matcher.group();
+                    System.out.println("支出金额：" + s);
+                    amount = Double.parseDouble(s);
+                    pattern_matched = true;
+                    break;
+                }
+            }
         }
 
         result.setType(type);

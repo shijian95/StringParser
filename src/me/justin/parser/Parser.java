@@ -107,6 +107,8 @@ public class Parser {
                 result = RemindParser(content);
             } else if (prefer_type == ParseResult.TYPE_ACCOUNT) {
                 result = AccountParser(content);
+            } else {
+                result = AccountParser(content);
             }
         }
         

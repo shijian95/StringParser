@@ -9,7 +9,8 @@ import me.justin.parser.TwoValue;
 
 public class TestAccount {
     final static String type_strs[] = { "", "提醒", "收入", "支出", "备忘" };
-
+    public final static int TYPE_INCOME = 2;
+    public final static int TYPE_EXPAND = 3;
     public static void testAccout() {
         /*
          * 买了5块肥皂，用掉11块88 买了10块地砖，用了128 昨天银行扣款2350元房贷。 买了一对枕头，支出99 今天还银行卡2750
@@ -70,6 +71,29 @@ public class TestAccount {
         test("老张孩子结婚，礼金500元。", "500.00");
         test("寿山石花五十块买了一块糖", "50.00");
         test("今天发了200块钱的补贴", "200.00");
+        test("收到购物汇款356块钱", "365.00", AccountParser_v1.TYPE_INCOME);
+        test("收到购物汇款356块钱", "365.00", AccountParser_v1.TYPE_INCOME);
+        test("领岗位津贴343块", "343.00", AccountParser_v1.TYPE_INCOME);
+        test("领交通补贴341块", "341.00", AccountParser_v1.TYPE_INCOME);
+        test("打牌赢钱334块3毛", "334.30", AccountParser_v1.TYPE_INCOME);
+        test("小陈还人民币338块", "338.00", AccountParser_v1.TYPE_INCOME);
+        test("今天有333块3毛3的入账", "333.33", AccountParser_v1.TYPE_INCOME);
+        test("老陈借我300元钱，刚才还我了", "300.00", AccountParser_v1.TYPE_INCOME);
+        test("领取暖费316块1毛", "316.10", AccountParser_v1.TYPE_INCOME);
+        test("今天我跟老四等三人，每人得了100块赏钱", "100.00", AccountParser_v1.TYPE_INCOME);
+        test("收到购物定金300", "300.00", AccountParser_v1.TYPE_INCOME);
+        test("3000块的手镯款卖了", "3000.00", AccountParser_v1.TYPE_INCOME);
+        test("做生意分利9万元", "90000.00", AccountParser_v1.TYPE_INCOME);
+        test("黄总给我1000，说是生日礼物", "1000.00", AccountParser_v1.TYPE_INCOME);
+        test("6件藏品拍卖了7万", "70000.00", TYPE_INCOME);
+        test("办公室的废品卖了157块", "157.00", TYPE_INCOME);
+        test("卖旧彩电一台回收149块6毛", "149.60", TYPE_INCOME);
+        test("今天去三元桥，要回500元。", "500.00", TYPE_INCOME);
+        test("今天到三元桥，打的花了50", "50.00", TYPE_EXPAND);
+        test("今天去四角楼喝茶，花费80", "80.00", TYPE_EXPAND);
+        test("本来5块钱的白菜，却花了我8块钱", "8.00", TYPE_EXPAND);
+        test("菠菜八毛一斤，我买了5斤，总共4块钱。", "4.00", TYPE_EXPAND);
+        test("三毛来我家，还200块钱", "200.00", TYPE_INCOME);
     }
     private static void test(String input, String expect) {
         AccountParserResult result = AccountParser_v1.parse(input);
@@ -82,10 +106,23 @@ public class TestAccount {
                     input, result.getTypedescription(), amountString, expect);
         }
     }
+    
+    private static void test(String input, String expect, int type) {
+        AccountParserResult result = AccountParser_v1.parse(input);
+        String amountString = String.format("%.2f", result.getAmount());
+        if (!amountString.equals(expect) || result.getType()!=type) {
+            System.err.format("Input:%s \tOutput: type:%s \t%s != %s \n",
+                    input, result.getTypedescription(), amountString, expect);
+        } else {
+            System.out.format("Input:%s \tOutput: type:%s \t%s == %s \n",
+                    input, result.getTypedescription(), amountString, expect);
+        }
+    }
+    
     public static void main(String[] args) {
         testAccout();
-//        test("小秘跑步回家买了3块糖给老杜吃了2块花了5块钱 ", "50.00");
-//        test("支出一笔：刚才买菜花了一百三。一个鸡九十，三种菜花了四十。", "130.00");
-//        test("收入一笔：老陈交给我五千，说里面有老李的三千和老陈的两千", "5000.00");
+
+
+        
     }
 }

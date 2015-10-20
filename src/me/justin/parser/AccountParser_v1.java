@@ -108,7 +108,7 @@ public class AccountParser_v1 {
         return false;
     }
     final static String[] REGS_STRINGS_EXCULDE={
-        "[一两二三四五六七八九十零\\d]+[笔把个位人次批伙场双件斤]" 
+        "[一两二三四五六七八九十零\\d]+[笔把个位人次批伙场双件斤盒张天]" 
         + "|" + "[一两二三四五六七八九十零\\d]+月[一两二三四五六七八九十零\\d]+日"
         + "|" + "[一两二三四五六七八九十零\\d]+年"
     };
@@ -129,16 +129,36 @@ public class AccountParser_v1 {
         "(?<=分利)\\d+\\.\\d{2}",
         "(?<=回收)\\d+\\.\\d{2}",
         "(?<=要回)\\d+\\.\\d{2}",
+        "(?<=赚了)\\d+\\.\\d{2}",
+        "(?<=赚)\\d+\\.\\d{2}",
         "(?<=还)\\d+\\.\\d{2}",
+        "(?<=捡到)\\d+\\.\\d{2}",
+        "(?<=收到)\\d+\\.\\d{2}",
+        "(?<=收入)\\d+\\.\\d{2}",
+        "(?<=赢了)\\d+\\.\\d{2}",
         "(?<=还人民币)\\d+\\.\\d{2}",
+        "(?<=还钱)\\d+\\.\\d{2}",
+        "(?<=进账)\\d+\\.\\d{2}",
+        "(?<=收回)\\d+\\.\\d{2}",
+        "(?<=我分了)\\d+\\.\\d{2}",
 
         };
     
     final static String PATTERNS_KEYWORD_INCOME[] = {
+        "报销.*费",
         "收到.*汇款",
+        "收.*礼金",
+        "收到.*利息",
         "领.*津贴",
         "领.*补贴",
+        "领.*过节费",
+        "领.*奖金",
+        "领.*费",
         "收到.*定金",
+        "给我.*发红包",
+        "给了我.*钱",
+        "发我红包",
+        "到了.*款",
         };
     /*
      * 
@@ -167,14 +187,17 @@ public class AccountParser_v1 {
             put("分红", INCOME_WORD);
             put("挣了", INCOME_WORD);
             put("卖了", INCOME_WORD);
+            put("报销", INCOME_WORD);
         }
     };
     final static Map<String, Integer> KEY_WORD_3 = new HashMap<String, Integer>() {
         private static final long serialVersionUID = 3L;
         {
             put("交给我", INCOME_WORD);
+            put("还我了", INCOME_WORD);
             put("领工资", INCOME_WORD);
             put("赢利了", INCOME_WORD);
+            put("卖出去", INCOME_WORD);
             put("开销了", EXPAND_WORD);
             put("狂宰我", EXPAND_WORD);
             put("三脚架", EXCULDE_WORD);
@@ -190,6 +213,9 @@ public class AccountParser_v1 {
             put("增收一笔", INCOME_WORD);
             put("进账一笔", INCOME_WORD);
             put("收入一笔", INCOME_WORD);
+            put("收到房租", INCOME_WORD);
+            put("收到利息", INCOME_WORD);
+            put("结算回来", INCOME_WORD);
             put("领取暖费", INCOME_WORD);
             put("支出一笔", EXPAND_WORD);
             put("开销一笔", EXPAND_WORD);
@@ -240,7 +266,7 @@ public class AccountParser_v1 {
     
     public static AccountParserResult parse(String content) {
         AccountParserResult result = new AccountParserResult();
-        int type = TYPE_UNKNOWN;
+        Integer type = TYPE_UNKNOWN;
         result.setType(type);
         String str1 = removeExcludeWords(content);
         
@@ -297,56 +323,68 @@ public class AccountParser_v1 {
         }
         String last_string = sBuilder.toString();
         System.out.println("结果：" + sBuilder.toString());        
-        if (amounts.size() == 1){
-            result.setType(type);
-            result.setAmount(amounts.get(0).amount);
-        } else if (amounts.size() > 1) {
-            int size = amounts.size();
-            for (int i = 0; i < size; i++) {
-                boolean pattern_matched = false;
-                for (String regex : PATTERNS_EXPAND) {
-                    Pattern pattern = Pattern.compile(regex);
-                    Matcher matcher = pattern.matcher(last_string );
-                    if (matcher.find()) {
-                        type = TYPE_EXPAND;
-                        String s = matcher.group();
-                        System.out.println("金额：" + s);
-                        amount = Double.parseDouble(s);
-                        pattern_matched = true;
-                        break;
-                    }
-                }
-                
-                for (String regex : PATTERNS_INCOME) {
-                    Pattern pattern = Pattern.compile(regex);
-                    Matcher matcher = pattern.matcher(sBuilder.toString());
-                    if (matcher.find()) {
-                        type = TYPE_INCOME;
-                        String s = matcher.group();
-                        System.out.println("金额：" + s);
-                        amount = Double.parseDouble(s);
-                        pattern_matched = true;
-                        break;
-                    }
-                }
-                
-                if (pattern_matched == false) {
+        if (amounts.size() == 1 || amounts.size() > 1) {
+            TwoValue<Integer, Double> retTwoValue = parseType(last_string);
+            if (retTwoValue.a != TYPE_UNKNOWN) {
+                type = retTwoValue.a;
+            }
+            if (retTwoValue.b != null) {
+                amount = retTwoValue.b;
+            }
+            if (amounts.size() > 1 && retTwoValue.b==null) {
+                int size = amounts.size();
+                for (int i = 0; i < size; i++) {
                     AmountPos ap = amounts.get(i);
                     int pos = ap.postion;
-                    if (pos>0) {
-                        Element preElement = words2.get(pos-1);
-                        if (preElement.type == EXPAND_WORD || preElement.type == INCOME_WORD) {
+                    if (pos > 0) {
+                        Element preElement = words2.get(pos - 1);
+                        if (preElement.type == EXPAND_WORD
+                                || preElement.type == INCOME_WORD) {
                             amount = ap.amount;
                             break;
                         }
                     }
                 }
             }
-        }
-
-        //if can't find the type, then set a default type
+        } 
+        result.setType(type);
+        result.setAmount(amount);
+        return result;
+    }
+    
+    private static TwoValue<Integer, Double> parseType(String last_string) {
         boolean pattern_matched = false;
-        if (type == TYPE_UNKNOWN) {
+        TwoValue<Integer, Double> ret;
+        int type = TYPE_UNKNOWN;
+        Double amount = null;
+        //判断类型
+        for (String regex : PATTERNS_EXPAND) {
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(last_string);
+            if (matcher.find()) {
+                type = TYPE_EXPAND;
+                String s = matcher.group();
+                System.out.println("Out金额：" + s);
+                amount = Double.parseDouble(s);
+                pattern_matched = true;
+                break;
+            }
+        }
+      //判断类型
+        if (!pattern_matched)
+            for (String regex : PATTERNS_INCOME) {
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(last_string);
+                if (matcher.find()) {
+                    type = TYPE_INCOME;
+                    String s = matcher.group();
+                    System.out.println("In金额：" + s);
+                    amount = Double.parseDouble(s);
+                    pattern_matched = true;
+                    break;
+                }
+            }
+        if (!pattern_matched)
             for (String regex : PATTERNS_KEYWORD_INCOME) {
                 Pattern pattern = Pattern.compile(regex);
                 Matcher matcher = pattern.matcher(last_string);
@@ -356,39 +394,11 @@ public class AccountParser_v1 {
                     break;
                 }
             }
-            if (!pattern_matched)
-            for (String regex : PATTERNS_INCOME) {
-                Pattern pattern = Pattern.compile(regex);
-                Matcher matcher = pattern.matcher(sBuilder.toString());
-                if (matcher.find()) {
-                    type = TYPE_INCOME;
-                    String s = matcher.group();
-                    System.out.println("收入金额：" + s);
-                    amount = Double.parseDouble(s);
-                    pattern_matched = true;
-                    break;
-                }
-            }
-            
-            if (!pattern_matched)
-            for (String regex : PATTERNS_EXPAND) {
-                Pattern pattern = Pattern.compile(regex);
-                Matcher matcher = pattern.matcher(sBuilder.toString());
-                if (matcher.find()) {
-                    type = TYPE_EXPAND;
-                    String s = matcher.group();
-                    System.out.println("支出金额：" + s);
-                    amount = Double.parseDouble(s);
-                    pattern_matched = true;
-                    break;
-                }
-            }
-        }
-
-        result.setType(type);
-        result.setAmount(amount);
-        return result;
+        if (DEBUG)
+            System.out.println("parseType " + type + " : " + amount);
+        return new TwoValue<Integer, Double>(type, amount);
     }
+    
     public static TwoValue<Integer, String> paraseContent(String content) {
         int type = paraseContentType(content);
         String result = null;
@@ -819,11 +829,32 @@ public class AccountParser_v1 {
         return 0;
     }
     
+    private static boolean isMixedDigit(char c) {
+        boolean ret = false;
+        if (isDigit(c)) {
+            ret = true;;
+        } else {
+            for (char b: zh_digit_start_keywords) {
+                if (b == c) {
+                    ret = true;
+                    break;
+                }
+            }
+        }
+        return ret;
+    }
+    
     static ArrayList<Element> split_by_digit(String content){
         ArrayList<Element> words = new ArrayList<Element>();
         StringBuffer sb = new StringBuffer();
         char start = content.charAt(0);
-        int type = getCharType(start);
+        int type; 
+        if (isMixedDigit(start)) {
+            type = DIGIT;
+        } else {
+            type = LETTER;
+        }
+//        int type = getCharType(start);
         for (int i = 0; i < content.length(); i++) {
             char a = content.charAt(i);
             if (type == LETTER && zh_map_char.get(a) != null

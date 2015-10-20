@@ -29,7 +29,7 @@ public class TestAccount {
         test("10月10日订购的一批书，100元。", "100.00");
         test("朋友结婚随礼五百块", "500.00");
         test("昨天收到1万亿", "1000000000000.00");
-        test("买了块豆腐三块三,支出一笔", "3.30");
+        test("买了块豆腐三块三", "3.30");
         test("收入一笔，买菜花了1200块", "1200.00");
         test("支出200万8千零50", "2008050.00");
         test("买了5块肥皂，用掉11块88", "11.88");
@@ -71,8 +71,8 @@ public class TestAccount {
         test("老张孩子结婚，礼金500元。", "500.00");
         test("寿山石花五十块买了一块糖", "50.00");
         test("今天发了200块钱的补贴", "200.00");
-        test("收到购物汇款356块钱", "365.00", AccountParser_v1.TYPE_INCOME);
-        test("收到购物汇款356块钱", "365.00", AccountParser_v1.TYPE_INCOME);
+        test("收到购物汇款356块钱", "356.00", AccountParser_v1.TYPE_INCOME);
+        test("收到购物汇款356块钱", "356.00", AccountParser_v1.TYPE_INCOME);
         test("领岗位津贴343块", "343.00", AccountParser_v1.TYPE_INCOME);
         test("领交通补贴341块", "341.00", AccountParser_v1.TYPE_INCOME);
         test("打牌赢钱334块3毛", "334.30", AccountParser_v1.TYPE_INCOME);
@@ -94,6 +94,46 @@ public class TestAccount {
         test("本来5块钱的白菜，却花了我8块钱", "8.00", TYPE_EXPAND);
         test("菠菜八毛一斤，我买了5斤，总共4块钱。", "4.00", TYPE_EXPAND);
         test("三毛来我家，还200块钱", "200.00", TYPE_INCOME);
+        test("今天炒股赚了598块零2分", "598.02", TYPE_INCOME);
+        test("收到银行利息592块", "592.00", TYPE_INCOME);
+        test("过节费发了一千元", "1000.00", TYPE_INCOME);
+        test("领过节费，共计2581元", "2581.00", TYPE_INCOME);
+        test("报销本月打的费569块", "569.00", TYPE_INCOME);
+        test("借给老张的565块钱，今天还我了", "565.00", TYPE_INCOME);
+        test("卖了一盒产品563块", "563.00", TYPE_INCOME);
+        test("卖出去一盒产品563块", "563.00", TYPE_INCOME);
+        test("飞机票报销556块", "556.00", TYPE_INCOME);
+        test("领这月奖金555块", "555.00", TYPE_INCOME);
+        test("公司分红554块", "554.00", TYPE_INCOME);
+        test("孩子给我发红包547块", "547.00", TYPE_INCOME);
+        test("捡到10块钱", "10.00", TYPE_INCOME);
+        test("收到523块7毛6的房租费", "523.76", TYPE_INCOME);
+        test("今天销售进账522块", "522.00", TYPE_INCOME);
+        test("卖菜收入521块7毛钱", "521.70", TYPE_INCOME);
+        test("长途车费报销512块", "512.00", TYPE_INCOME);
+        test("收到银行利息502块", "502.00", TYPE_INCOME);
+        test("下午打牌，赢了496元5角", "496.50", TYPE_INCOME);
+        test("这月买了5支股票赚了3万元", "30000.00", TYPE_INCOME);
+        test("卖掉2支股票赚了490块8", "490.80", TYPE_INCOME);
+        test("卖了35把扇子进账486元", "486.00", TYPE_INCOME);
+        test("小陈还钱484块，不再欠了", "484.00", TYPE_INCOME);
+        test("卖废品得了25元", "25.00", TYPE_INCOME);
+        test("报销8张的士票，共475块", "475.00", TYPE_INCOME);
+        test("7个朋友3天里给了我6次钱，共2100块", "2100.00", TYPE_INCOME);
+        test("领工资4000块加上补贴1000块，总共进账5000块钱", "5000.00", TYPE_INCOME);
+        test("今天网店进账451块", "451.00", TYPE_INCOME);
+        test("转让3件藏品，收回438块", "438.00", TYPE_INCOME);
+        test("今天老板拍给我300元，让我买烟抽", "300.00", TYPE_INCOME);
+        test("卖了5套产品，净赚200块", "200.00", TYPE_INCOME);
+        test("老板发我红包800元", "800.00", TYPE_INCOME);
+        test("领了409块，是20天的值班费", "409.00", TYPE_INCOME);
+        test("帮了老张3天工，给了我800。", "800.00", TYPE_INCOME);
+        test("收到房租385块8毛", "385.80", TYPE_INCOME);
+        test("定存到期收到利息383块8", "383.80", TYPE_INCOME);
+        test("结算回来376块7毛6", "376.76", TYPE_INCOME);
+        test("收7人的礼金700元", "700.00", TYPE_INCOME);
+        test("又到了一笔工程款四万元", "40000.00", TYPE_INCOME);
+        test("老板给我们一万块，我分了四千。", "4000.00", TYPE_INCOME);
     }
     private static void test(String input, String expect) {
         AccountParserResult result = AccountParser_v1.parse(input);
@@ -121,8 +161,7 @@ public class TestAccount {
     
     public static void main(String[] args) {
         testAccout();
-
-
+//        test("又到了一笔工程款四万元", "40000.00", TYPE_INCOME);
         
     }
 }

@@ -537,7 +537,36 @@ public class TestReminder {
         expect.interval = (60 * 60) * 1000;
         assertReminder("每隔一小时提醒我", expect);
     }
-    
+    static void test_9() {
+        Calendar c = Calendar.getInstance();
+        Alarm expect = new Alarm();
+        c.setTimeInMillis(System.currentTimeMillis());
+        int curDay = c.get(Calendar.DAY_OF_MONTH);
+        int curWeekday = c.get(Calendar.DAY_OF_WEEK);
+        int curMonth = c.get(Calendar.MONTH) + 1;
+        int maxMonthDay = c.getActualMaximum(Calendar.DAY_OF_MONTH);
+        int nowHour = c.get(Calendar.HOUR_OF_DAY);
+        int nowMinute = c.get(Calendar.MINUTE);
+        int nowSecond = c.get(Calendar.SECOND);
+        int curYear = c.get(Calendar.YEAR);
+        
+        expect.type = Alarm.ALARM_TYPE_ABSOLUTE;
+        expect.repeatType = Alarm.ALARM_REPEAT_TYPE_NONE;
+        expect.repeatTimes = -1;
+//        expect.year = c.get(Calendar.YEAR);
+        expect.month = 10;
+        expect.day = 17;
+        expect.hour = 8;
+        expect.minutes = 0;
+        if (expect.month < curMonth ||
+                (expect.day < curDay && expect.month == curMonth) ||
+                (expect.hour < nowHour && expect.day == curDay && expect.month == curMonth)) {
+            expect.year = curYear + 1;
+        } else {
+            expect.year = curYear ;
+        }
+        assertReminder("10月17号上午8点提醒我", expect);
+    }
     public static void testReminder() {
         Alarm expect;
         DaysOfWeek daysofWeek;
@@ -1181,7 +1210,7 @@ public class TestReminder {
      */
     public static void main(String[] args) {
         testReminder();
-//         TestAccount.testAccout();
+//        test_9();
     }
 
 }

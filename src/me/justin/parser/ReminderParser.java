@@ -1192,6 +1192,7 @@ public class ReminderParser {
         Alarm alarm = new Alarm();
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(System.currentTimeMillis());
+        int nowYear = c.get(Calendar.YEAR);
         int nowMonth = c.get(Calendar.MONTH) + 1;
         int nowMonthDay = c.get(Calendar.DAY_OF_MONTH);
         int nowHour = c.get(Calendar.HOUR_OF_DAY);
@@ -1317,14 +1318,24 @@ public class ReminderParser {
             if (ampm != 0)
                 alarm.ampm = ampm;
             
+            //如何年没有设置，只是说了日期，但是日期已经过期，那么设置成下一年的
+            if (year == 0) {
+                if (alarm.month < nowMonth ||
+                        (alarm.day < nowMonthDay && alarm.month == nowMonth) ||
+                        (alarm.hour < nowHour && alarm.day == nowMonthDay && alarm.month == nowMonth)) {
+                    alarm.year = nowYear + 1;
+                } else {
+                    alarm.year = nowYear ;
+                }
+            }
+            
             //本月末的情况,如果时间已经过去，那么顺延到下月末
             if (day == -1 && alarm.month == nowMonth) {
                 if (isTimePassed(alarm)) {
                     addOneMonth(alarm);
                 }
-            } else
-            //周的情况，前面已经处理了，这里不用再次处理
-            if (nowMonthDay == alarm.day && weekday == -1) {
+            } else if (nowMonthDay == alarm.day && weekday == -1) {
+                //周的情况，前面已经处理了，这里不用再次处理
                 // 如果day == 0，默认为当前 
                 //如果是2点12分提醒我，但是时间已经过去了。那么天数需要加1
                 if (isTimePassed(alarm)) {

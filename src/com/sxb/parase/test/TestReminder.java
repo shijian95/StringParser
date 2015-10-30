@@ -567,6 +567,22 @@ public class TestReminder {
         }
         assertReminder("10月17号上午8点提醒我", expect);
     }
+    
+    static void test_10() {
+        Calendar c = Calendar.getInstance();
+        Alarm expect = new Alarm();
+        c.setTimeInMillis(System.currentTimeMillis());
+        expect.type = Alarm.ALARM_TYPE_RELATIVE;
+        expect.repeatType = Alarm.ALARM_REPEAT_TYPE_WEEK;
+        expect.repeatTimes = -1;
+        expect.daysOfWeek.set(0, true);
+        expect.daysOfWeek.set(1, true);
+        expect.daysOfWeek.set(2, true);
+        expect.daysOfWeek.set(3, true);
+        expect.daysOfWeek.set(4, true);
+        assertReminder("周一到周五每天上午8点提醒我", expect);
+    }
+    
     public static void testReminder() {
         Alarm expect;
         DaysOfWeek daysofWeek;
@@ -580,6 +596,8 @@ public class TestReminder {
         int nowMinute = c.get(Calendar.MINUTE);
         int nowSecond = c.get(Calendar.SECOND);
         
+        test_10();
+        test_9();
         //每隔一小时提醒我
         test_8();
         
@@ -1158,7 +1176,7 @@ public class TestReminder {
     }
 
     public static void assertReminder(String input, Alarm expect) {
-    	ParseResult item = Parser.paraseContent(input);
+    	ParseResult item = Parser.RemindParser(input);
          Alarm alarm;
          if (item.getType() == ParseResult.TYPE_REMIND) {
              alarm = (Alarm) item.getObject();
@@ -1208,9 +1226,10 @@ public class TestReminder {
     /**
      * @param args
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) {   
         testReminder();
 //        test_9();
+        test_10();
     }
 
 }

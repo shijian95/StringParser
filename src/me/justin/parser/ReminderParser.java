@@ -1230,6 +1230,9 @@ public class ReminderParser {
             type = Alarm.ALARM_TYPE_RELATIVE;
             alarm.daysOfWeek = daysofWeek;
         }
+        if (alarm.daysOfWeek.getCoded() != 0) {
+            repeatType = Alarm.ALARM_REPEAT_TYPE_WEEK;
+        }
 
         alarm.type = type;
         alarm.repeatType = repeatType;

@@ -188,6 +188,7 @@ public class AccountParser_v1 {
             put("挣了", INCOME_WORD);
             put("卖了", INCOME_WORD);
             put("报销", INCOME_WORD);
+            put("收入", INCOME_WORD);
         }
     };
     final static Map<String, Integer> KEY_WORD_3 = new HashMap<String, Integer>() {
@@ -196,6 +197,7 @@ public class AccountParser_v1 {
             put("交给我", INCOME_WORD);
             put("还我了", INCOME_WORD);
             put("领工资", INCOME_WORD);
+            put("发奖金", INCOME_WORD);
             put("赢利了", INCOME_WORD);
             put("卖出去", INCOME_WORD);
             put("开销了", EXPAND_WORD);

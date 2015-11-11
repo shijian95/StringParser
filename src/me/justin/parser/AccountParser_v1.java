@@ -120,7 +120,7 @@ public class AccountParser_v1 {
         };
     
     final static String PATTERNS_INCOME[] = {
-        "(?<=给我)\\d+\\.\\d{2}",
+        "(?<=给我)\\d+\\.\\d{2}",   //匹配 给我200.00  匹配结果是200.00
         "(?<=给了我)\\d+\\.\\d{2}",
         "(?<=拾到)\\d+\\.\\d{2}",
         "(?<=赢钱)\\d+\\.\\d{2}",
@@ -194,6 +194,7 @@ public class AccountParser_v1 {
     final static Map<String, Integer> KEY_WORD_3 = new HashMap<String, Integer>() {
         private static final long serialVersionUID = 3L;
         {
+            put("中彩票", INCOME_WORD);
             put("交给我", INCOME_WORD);
             put("还我了", INCOME_WORD);
             put("领工资", INCOME_WORD);
@@ -211,6 +212,7 @@ public class AccountParser_v1 {
     final static Map<String, Integer> KEY_WORD_4 = new HashMap<String, Integer>() {
         private static final long serialVersionUID = 4L;
         {
+            put("中了彩票", INCOME_WORD);
             put("得到一笔", INCOME_WORD);
             put("增收一笔", INCOME_WORD);
             put("进账一笔", INCOME_WORD);

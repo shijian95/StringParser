@@ -131,6 +131,8 @@ public class TestAccount {
         test("老板给我们一万块，我分了四千。", "4000.00", TYPE_INCOME);
         test("收入一笔500。", "500.00", TYPE_INCOME);
         test("公司发奖金1500元", "1500.00", TYPE_INCOME);
+        test("今天中彩票2000万", "20000000.00", TYPE_INCOME);
+        test("今天中了彩票得到2000万", "20000000.00", TYPE_INCOME);
     }
     private static void test(String input, String expect) {
         AccountParserResult result = AccountParser_v1.parse(input);
@@ -157,9 +159,9 @@ public class TestAccount {
     }
     
     public static void main(String[] args) {
-        testAccout();
-        
-//        test("又到了一笔工程款四万元", "40000.00", TYPE_INCOME);
+//        testAccout();
+        test("今天中彩票2000万", "20000000.00", TYPE_INCOME);
+        test("今天中了彩票得到2000万", "20000000.00", TYPE_INCOME);
         
     }
 }

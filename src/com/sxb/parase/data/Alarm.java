@@ -2,7 +2,6 @@
 
 package com.sxb.parase.data;
 
-import java.awt.Cursor;
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
 
@@ -32,58 +31,37 @@ public final class Alarm  {
   public static final int ALARM_TYPE_FAILED= 3;
   private OnTimeChangedListener mOnTimeChangedListener;
 
+    public String label;
+  
+    public int year;
+    public int month;
+    public int day;
+    public int hour;
+    public int minutes;
+    public int second;
+    public DaysOfWeek daysOfWeek; // 周，其实就是一个int型
+    public long time;
+    public int repeatType; // 提醒类型
+    public int repeatTimes; // 重复次数
+    public long interval; // ？间隔时间，可能没用
+    // the below filed is not in the database column
+    public int type; 
+    public int ampm; // 1 :am, 2: pm
 
-    public int describeContents() {
-        return 0;
-    }
+    // 下面的字段用于计算，表盘针的角度
+    public int mHourDegree = 0;
+    public int mMinuteDegree = 0;
+    public int mPreMinuteDegree = 0;
+    public int mPreHourDegree = 0;
 
-
-    //////////////////////////////
-    // End column definitions
-    //////////////////////////////
-
-    public int        id;
-    public boolean    enabled;  //是否启用
-    public int        year;
-    public int        month;
-    public int        day;
-    public int        hour;
-    public int        minutes;
-    public int        second;
-    public DaysOfWeek daysOfWeek;   //周，其实就是一个int型
-    public long       time;
-    public boolean    vibrate;     //是否震动
-    public String     label;      //提醒内容
-    public String        alert;     //是否震动
-    public boolean    silent;    //是否静音
-    public long       recordId;     //? 可能没用
-    public String     fileName;     //对应的语言文件路径
-    public boolean    isFileExit; //not in database, depend on filename
-    public int        repeatType;   //提醒类型
-    public int        repeatTimes;   //重复次数
-    public long       interval;       //？间隔时间，可能没用
-    public long       remoteId;
-    public int        isUpload;
-
-    public long       created;
-    //the below filed is not in the database column
-    public int        type;
-    public int        ampm;  //1 :am, 2: pm
-    public int        mHourDegree = 0;
-    public int        mMinuteDegree = 0;
-    public int        mPreMinuteDegree = 0;
-    public int        mPreHourDegree = 0;
-
-    private boolean   mHourAbove12 = false;
-    private boolean   mMinuteAbove12 = false;
+    private boolean mHourAbove12 = false;
+    private boolean mMinuteAbove12 = false;
 
     // Creates a default alarm at the current time.
     public Alarm() {
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(System.currentTimeMillis());
-
-        id = -1;
-        enabled = true;
+        label = "";
         year = c.get(Calendar.YEAR);
         month = c.get(Calendar.MONTH) + 1;
         day = c.get(Calendar.DAY_OF_MONTH);
@@ -92,41 +70,11 @@ public final class Alarm  {
         second = 0; //c.get(Calendar.SECOND);
         daysOfWeek = new DaysOfWeek(0);
         time = c.getTimeInMillis();
-        vibrate = true;
-        //label
-        alert = null;
-        //silent
-        recordId = -1;
-        fileName = null;
-        isFileExit = false;
         repeatType = ALARM_REPEAT_TYPE_NONE;
         repeatTimes = -1;
         interval = 0;
 		ampm = 0;
-		remoteId = -1;
-		isUpload = 0;
-		created = 0;
     }
-
-    public String getLabelOrDefault() {
-        if (label == null || label.length() == 0) {
-            return "默认值";
-      }
-        return label;
-    }
-
-    @Override
-    public int hashCode() {
-        return id;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof Alarm)) return false;
-        final Alarm other = (Alarm) o;
-        return id == other.id;
-    }
-
 
     /*
      * Days of week code as a single int.

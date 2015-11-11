@@ -1155,6 +1155,7 @@ public class TimeParser_v3 {
 		
 		tp.parser_time("周一到周五每天上午8点提醒我");
 		tp.parser_time("每天上午8点提醒我");
+		tp.parser_time("中午1点提醒我");
 		// 九点差五分
 		// 九点一刻
 		//tp.parser_time("");

@@ -12,7 +12,17 @@ import com.sxb.parase.data.Alarm.DaysOfWeek;
 public class TestReminder {
     final static String type_strs[] = { "", "提醒", "收入", "支出", "备忘" };
     final static int DEFAULTHOUR = 9;
-
+    public static final int ALARM_REPEAT_TYPE_NONE = 0;
+    public static final int ALARM_REPEAT_TYPE_DAY = 1;
+    public static final int ALARM_REPEAT_TYPE_WEEK = 2;
+    public static final int ALARM_REPEAT_TYPE_MONTH = 3;
+    public static final int ALARM_REPEAT_TYPE_YEAR = 4;
+    public static final int ALARM_REPEAT_TYPE_INTERVAL = 5;
+    public static final int ALARM_REPEAT_TYPE_STOPWATCH = 6;
+    
+    final static String repeat_type_strs[] = {
+        "none", "每天","每周","每月","每年","定时","倒计时"
+    };
 
     static void test_week_1() {
         // 周六上午九点提醒我
@@ -575,6 +585,12 @@ public class TestReminder {
         expect.type = Alarm.ALARM_TYPE_RELATIVE;
         expect.repeatType = Alarm.ALARM_REPEAT_TYPE_WEEK;
         expect.repeatTimes = -1;
+        expect.year = 0;
+        expect.month = 0;
+        expect.day = 0;
+        expect.hour = 8;
+        expect.minutes = 0;
+        expect.second = 0;
         expect.daysOfWeek.set(0, true);
         expect.daysOfWeek.set(1, true);
         expect.daysOfWeek.set(2, true);
@@ -583,6 +599,40 @@ public class TestReminder {
         assertReminder("周一到周五每天上午8点提醒我", expect);
     }
     
+    //中午1点提醒我
+    static void test_11() {
+        Calendar c = Calendar.getInstance();
+        Alarm expect = new Alarm();
+        c.setTimeInMillis(System.currentTimeMillis());
+        expect.type = Alarm.ALARM_TYPE_ABSOLUTE;
+        expect.repeatType = Alarm.ALARM_REPEAT_TYPE_NONE;
+        expect.repeatTimes = -1;
+        expect.hour = 13;
+        expect.minutes = 0;
+        expect.second = 0;
+        expect.ampm = 2;
+        if (isTimePassed(expect)) {
+            addOneDay(expect);
+        }
+        assertReminder("中午1点提醒我", expect);
+    }
+    //2016年11月8日早上9点提醒我
+    static void test_12() {
+        Calendar c = Calendar.getInstance();
+        Alarm expect = new Alarm();
+        c.setTimeInMillis(System.currentTimeMillis());
+        expect.type = Alarm.ALARM_TYPE_ABSOLUTE;
+        expect.repeatType = Alarm.ALARM_REPEAT_TYPE_NONE;
+        expect.repeatTimes = -1;
+        expect.year = 2016;
+        expect.month = 11;
+        expect.day = 8;
+        expect.hour = 9;
+        expect.minutes = 0;
+        expect.second = 0;
+        expect.ampm = 1;
+        assertReminder("2016年11月8日早上9点提醒我", expect);
+    }
     public static void testReminder() {
         Alarm expect;
         DaysOfWeek daysofWeek;
@@ -596,6 +646,8 @@ public class TestReminder {
         int nowMinute = c.get(Calendar.MINUTE);
         int nowSecond = c.get(Calendar.SECOND);
         
+        test_12();
+        test_11();
         test_10();
         test_9();
         //每隔一小时提醒我
@@ -1188,33 +1240,33 @@ public class TestReminder {
         long interval_minutes = alarm.interval / (1000 * 60) % 60;
         if (equals(alarm, expect)) {
             System.out
-                    .format("type:%d repattype:%d,"
+                    .format("type:%d repattype:%s,"
                             + "year:%d, month:%d, day:%d, hour:%d, minutes:%d second:%d "
                             + "ampm:%d, dayofweek:%s "
                             + "interval:%d小时%d分 次数:%d\n", alarm.type,
-                            alarm.repeatType, alarm.year, alarm.month,
+                            repeat_type_strs[alarm.repeatType], alarm.year, alarm.month,
                             alarm.day, alarm.hour, alarm.minutes, alarm.second,
                             alarm.ampm, alarm.daysOfWeek.toString(true),
                             interval_hours, interval_minutes, alarm.repeatTimes);
         } else {
             System.err.println(input); 
             System.err
-                    .format("current:type:%d repattype:%d,"
+                    .format("current:type:%d repattype:%s,"
                             + " year:%d, month:%d, day:%d, hour:%d, minutes:%d second:%d "
                             + "ampm:%d, dayofweek:%s "
                             + "interval:%d小时%d分 次数:%d\n", alarm.type,
-                            alarm.repeatType, alarm.year, alarm.month,
+                            repeat_type_strs[alarm.repeatType], alarm.year, alarm.month,
                             alarm.day, alarm.hour, alarm.minutes, alarm.second,
                             alarm.ampm, alarm.daysOfWeek.toString(true),
                             interval_hours, interval_minutes, alarm.repeatTimes);
             long expect_interval_hours = expect.interval / (1000 * 60 * 60);
             long expect_interval_minutes = expect.interval / (1000 * 60) % 60;
             System.err
-                    .format("expect :type:%d repattype:%d,"
+                    .format("expect :type:%d repattype:%s,"
                             + " year:%d, month:%d, day:%d, hour:%d, minutes:%d second:%d "
                             + "ampm:%d, dayofweek:%s "
                             + "interval:%d小时%d分 次数:%d\n", expect.type,
-                            expect.repeatType, expect.year, expect.month,
+                            repeat_type_strs[expect.repeatType], expect.year, expect.month,
                             expect.day, expect.hour, expect.minutes,
                             expect.second, expect.ampm,
                             expect.daysOfWeek.toString(true),
@@ -1229,7 +1281,7 @@ public class TestReminder {
     public static void main(String[] args) {   
         testReminder();
 //        test_9();
-        test_10();
+//        test_12();
     }
 
 }

@@ -12,10 +12,6 @@ public class TestAccount {
     public final static int TYPE_INCOME = 2;
     public final static int TYPE_EXPAND = 3;
     public static void testAccout() {
-        /*
-         * 买了5块肥皂，用掉11块88 买了10块地砖，用了128 昨天银行扣款2350元房贷。 买了一对枕头，支出99 今天还银行卡2750
-         * 只是出现“归还、还款、还贷”等归还的字眼，就视同负收入 昨天买了四条毛巾花了三十四块七毛五
-         */
         test("上午交电费70元", "70.00");
         test("昨天科室会餐，每人分摊70元", "70.00");
         test("早上去菜市场，掉了20元", "20.00");
@@ -59,7 +55,6 @@ public class TestAccount {
         test("得到2万8千零54块3毛2", "28054.32");
         test("消费2万8千零54块3毛2分", "28054.32");
         test("收入200万8千零5十", "2008050.00");
-
         test("支出一笔：我们五十人三次吃了六百", "600.00");
         test("支出1千8", "1800.00");
         test("支出1千", "1000.00");
@@ -71,20 +66,20 @@ public class TestAccount {
         test("老张孩子结婚，礼金500元。", "500.00");
         test("寿山石花五十块买了一块糖", "50.00");
         test("今天发了200块钱的补贴", "200.00");
-        test("收到购物汇款356块钱", "356.00", AccountParser_v1.TYPE_INCOME);
-        test("收到购物汇款356块钱", "356.00", AccountParser_v1.TYPE_INCOME);
-        test("领岗位津贴343块", "343.00", AccountParser_v1.TYPE_INCOME);
-        test("领交通补贴341块", "341.00", AccountParser_v1.TYPE_INCOME);
-        test("打牌赢钱334块3毛", "334.30", AccountParser_v1.TYPE_INCOME);
-        test("小陈还人民币338块", "338.00", AccountParser_v1.TYPE_INCOME);
-        test("今天有333块3毛3的入账", "333.33", AccountParser_v1.TYPE_INCOME);
-        test("老陈借我300元钱，刚才还我了", "300.00", AccountParser_v1.TYPE_INCOME);
-        test("领取暖费316块1毛", "316.10", AccountParser_v1.TYPE_INCOME);
-        test("今天我跟老四等三人，每人得了100块赏钱", "100.00", AccountParser_v1.TYPE_INCOME);
-        test("收到购物定金300", "300.00", AccountParser_v1.TYPE_INCOME);
-        test("3000块的手镯款卖了", "3000.00", AccountParser_v1.TYPE_INCOME);
-        test("做生意分利9万元", "90000.00", AccountParser_v1.TYPE_INCOME);
-        test("黄总给我1000，说是生日礼物", "1000.00", AccountParser_v1.TYPE_INCOME);
+        test("收到购物汇款356块钱", "356.00", TYPE_INCOME);
+        test("收到购物汇款356块钱", "356.00", TYPE_INCOME);
+        test("领岗位津贴343块", "343.00", TYPE_INCOME);
+        test("领交通补贴341块", "341.00", TYPE_INCOME);
+        test("打牌赢钱334块3毛", "334.30", TYPE_INCOME);
+        test("小陈还人民币338块", "338.00", TYPE_INCOME);
+        test("今天有333块3毛3的入账", "333.33", TYPE_INCOME);
+        test("老陈借我300元钱，刚才还我了", "300.00", TYPE_INCOME);
+        test("领取暖费316块1毛", "316.10", TYPE_INCOME);
+        test("今天我跟老四等三人，每人得了100块赏钱", "100.00", TYPE_INCOME);
+        test("收到购物定金300", "300.00", TYPE_INCOME);
+        test("3000块的手镯款卖了", "3000.00", TYPE_INCOME);
+        test("做生意分利9万元", "90000.00", TYPE_INCOME);
+        test("黄总给我1000，说是生日礼物", "1000.00", TYPE_INCOME);
         test("6件藏品拍卖了7万", "70000.00", TYPE_INCOME);
         test("办公室的废品卖了157块", "157.00", TYPE_INCOME);
         test("卖旧彩电一台回收149块6毛", "149.60", TYPE_INCOME);

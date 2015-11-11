@@ -32,7 +32,7 @@ public class Parser {
     
     public static ParseResult RemindParser(String recFullString) {
         ParseResult result;
-        Alarm alarm = ReminderParser
+        Alarm alarm = ReminderParser_v1
                 .parseReminderResult(recFullString);
         if (alarm.type == Alarm.ALARM_TYPE_FAILED) {
             Memo memo = new Memo();

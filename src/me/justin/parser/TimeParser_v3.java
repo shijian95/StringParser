@@ -644,6 +644,7 @@ public class TimeParser_v3 {
 		
 		for(i=0; i<rule_output_list.size(); i++){
 			rule_output.putAll(rule_output_list.get(i));
+			System.out.println("rule:" + rule_output_list.get(i));
 		}
     	
 		//System.out.println("rule_to_pattern rule_output.size()" + rule_output.size());
@@ -692,8 +693,8 @@ public class TimeParser_v3 {
 			matcher = pattern.matcher(input);
 			
 			if(matcher.find()){
-				//System.out.println("parser_multiple_time_unit key=" + key.toString());
-				//System.out.println("parser_multiple_time_unit value=" + value.toString());
+				System.out.println("parser_multiple_time_unit key=:" + key.toString());
+				System.out.println("parser_multiple_time_unit value=:" + value.toString());
 				for(i=0; i<matcher.groupCount(); i++ ){
 					//System.out.println("parser_multiple_time_unit " + matcher.group(i+1));
 				}
@@ -714,6 +715,10 @@ public class TimeParser_v3 {
 						pattern_v = Pattern.compile("group\\((\\d)\\)"); 
 						matcher_v = pattern_v.matcher(expression_value[1]);
 						if(matcher_v.find()){
+						    System.out.println("group[0] = " + matcher_v.group(0));
+						    System.out.println("group[1] = " + matcher_v.group(1));
+						    System.out.println("group[2] = " + matcher.group(2));
+						    System.out.println("groupCount = " + matcher_v.groupCount());
 							group_num = Integer.parseInt(matcher_v.group(1));
 							pr.str_v =  pr.str_v.replaceAll("group\\("+matcher_v.group(1)+"\\)", matcher.group(group_num));
 						}
@@ -729,8 +734,8 @@ public class TimeParser_v3 {
 						pr.str_v = matcher.group(group_num); // group(1)
 					}
 					
-					//System.out.println("parser_multiple_time_unit pr.unit str = " + expression_value[0]);
-					//System.out.println("parser_multiple_time_unit pr.str_v = " + pr.str_v);
+					System.out.println("parser_multiple_time_unit pr.unit str = " + expression_value[0]);
+					System.out.println("parser_multiple_time_unit pr.str_v = " + pr.str_v);
 					
 					p_results.p_result.put(pr.unit, pr.str_v);
 				}
@@ -1102,7 +1107,8 @@ public class TimeParser_v3 {
 		*/
 		
 		TimeParser_v3 tp = new TimeParser_v3();
-		tp.parser_time("一九九七年八月十五日");
+		tp.parser_time("周五上午8点提醒我");
+/*		tp.parser_time("一九九七年八月十五日");
 		tp.parser_time("九点十三分五十五秒");
 		tp.parser_time("十三分五十五秒");
 		tp.parser_time("一九九七年七月十五日九点十三分五十五秒");
@@ -1155,7 +1161,7 @@ public class TimeParser_v3 {
 		
 		tp.parser_time("周一到周五每天上午8点提醒我");
 		tp.parser_time("每天上午8点提醒我");
-		tp.parser_time("中午1点提醒我");
+		tp.parser_time("中午1点提醒我");*/
 		// 九点差五分
 		// 九点一刻
 		//tp.parser_time("");

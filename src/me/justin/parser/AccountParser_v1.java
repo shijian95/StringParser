@@ -153,12 +153,14 @@ public class AccountParser_v1 {
         "领.*补贴",
         "领.*过节费",
         "领.*奖金",
+        "发.*奖金",
         "领.*费",
         "收到.*定金",
         "给我.*发红包",
         "给了我.*钱",
         "发我红包",
         "到了.*款",
+        "发.*费"
         };
     /*
      * 
@@ -207,6 +209,7 @@ public class AccountParser_v1 {
             put("四道口", EXCULDE_WORD);
             put("三元桥", EXCULDE_WORD);
             put("四角楼", EXCULDE_WORD);
+            put("转发了", EXCULDE_WORD);
         }
     };
     final static Map<String, Integer> KEY_WORD_4 = new HashMap<String, Integer>() {

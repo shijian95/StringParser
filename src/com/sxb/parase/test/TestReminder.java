@@ -633,6 +633,31 @@ public class TestReminder {
         expect.ampm = 1;
         assertReminder("2016年11月8日早上9点提醒我", expect);
     }
+    
+    /*
+     * 每一个星期二中午提醒我
+每个星期二中午提醒我
+每到星期二中午提醒我
+每星期二中午提醒我
+     */
+    static void test_13() {
+        Calendar c = Calendar.getInstance();
+        Alarm expect = new Alarm();
+        c.setTimeInMillis(System.currentTimeMillis());
+        expect.type = Alarm.ALARM_TYPE_RELATIVE;
+        expect.repeatType = Alarm.ALARM_REPEAT_TYPE_WEEK;
+        expect.repeatTimes = -1;
+        expect.year = 0;
+        expect.month = 0;
+        expect.day = 0;
+        expect.hour = 12;
+        expect.minutes = 0;
+        expect.second = 0;
+        expect.ampm = 1;
+        expect.daysOfWeek.set(1, true);
+        assertReminder("每星期二中午提醒我", expect);
+    }
+    
     public static void testReminder() {
         Alarm expect;
         DaysOfWeek daysofWeek;
@@ -646,6 +671,7 @@ public class TestReminder {
         int nowMinute = c.get(Calendar.MINUTE);
         int nowSecond = c.get(Calendar.SECOND);
         
+        test_13();
         test_12();
         test_11();
         test_10();
@@ -1279,9 +1305,12 @@ public class TestReminder {
      * @param args
      */
     public static void main(String[] args) {   
-        testReminder();
+//        testReminder();
+        test_3();
+//        test_4();
 //        test_9();
 //        test_12();
+//        test_13();
     }
 
 }

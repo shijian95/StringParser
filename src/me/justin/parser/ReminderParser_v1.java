@@ -3,8 +3,14 @@ package me.justin.parser;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import me.justin.parser.AccountParser_v1.Element;
 
 import com.sxb.parase.data.Alarm;
 import com.sxb.parase.data.Alarm.DaysOfWeek;
@@ -22,6 +28,8 @@ public class ReminderParser_v1 {
     final static int TIME_DIGIT = 9; // 比如 半
     final static int TIME_REPEAT = 10; // 比如 半
     
+    final static int REGULAR_PARSED = 11; // 已经解析过了 符合定义的正则表达式，已经利用正则表达式解析过了
+    
     final static int TIME_COLON = 20;
     
     final static int DEFAULTHOUR = 9;
@@ -30,6 +38,22 @@ public class ReminderParser_v1 {
      */
     final static char zh_digit_keywords[] = { '零', '一', '二', '三', '四', '五',
             '六', '七', '八', '九', '两' };
+    
+    final static Map<String, Integer> ALARM_REPEAT_TYPE_STR2INT_MAP = new HashMap<String, Integer>() {
+        private static final long serialVersionUID = 1L;
+        {
+            put("ALARM_REPEAT_TYPE_NONE", Alarm.ALARM_REPEAT_TYPE_NONE);
+            put("ALARM_REPEAT_TYPE_DAY", Alarm.ALARM_REPEAT_TYPE_DAY);
+            put("ALARM_REPEAT_TYPE_WEEK", Alarm.ALARM_REPEAT_TYPE_WEEK);
+            put("ALARM_REPEAT_TYPE_MONTH", Alarm.ALARM_REPEAT_TYPE_MONTH);
+            put("ALARM_REPEAT_TYPE_YEAR", Alarm.ALARM_REPEAT_TYPE_YEAR);
+            put("ALARM_REPEAT_TYPE_INTERVAL", Alarm.ALARM_REPEAT_TYPE_INTERVAL);
+            put("ALARM_REPEAT_TYPE_STOPWATCH", Alarm.ALARM_REPEAT_TYPE_STOPWATCH);
+
+        }
+    };
+    
+    
     final static Map<Character, Float> zh_map_char = new HashMap<Character, Float>() {
         /**
          * 
@@ -87,6 +111,11 @@ public class ReminderParser_v1 {
     private final static String[] hour_strs = { "时", "小时", "点",":" };
     private final static String[] minute_strs = { "分", "分钟" };
     private final static String[] second_strs = { "秒" };
+    
+    final static String[][] key_map_reg = {
+        { "每(星期|礼拜|周)([1-7])", "daysofWeek=group(2);repeatType=ALARM_REPEAT_TYPE_WEEK" },
+        { "每(星期|礼拜|周)([一二三四五六七])",  "daysofWeek=group(2);repeatType=ALARM_REPEAT_TYPE_WEEK" }, 
+   };
     
     final static Map<String, Integer> time_key_type_map_1 = new HashMap<String, Integer>() {
         private static final long serialVersionUID = 1L;
@@ -644,6 +673,9 @@ public class ReminderParser_v1 {
         return readValues(string , -1);
     }
     
+    
+    
+    
     int year = 0;
     int month = 0;
     int day = 0;
@@ -721,10 +753,25 @@ public class ReminderParser_v1 {
     }
     
     public static Alarm parseReminderResult(String content) {
-        ArrayList<Element> words = split1(content);
-        words = split2(words);
-        ReminderParser_v1 parase = new ReminderParser_v1();
-        return parase.pickTime(content, words);
+        String ret1 = parser_zh_number(content);  //转换中文数字到阿拉伯数字 简化处理
+        ReminderParser_v1 paraser = new ReminderParser_v1(); 
+        ArrayList<Element> words1 = paraser.parser_time_unit(ret1);  //用正则表达式先进行解析
+        ArrayList<Element> words2 = new ArrayList<>();
+        for (Element e: words1) {
+            if (e.type == LETTER) {
+                ArrayList<Element> words = split1(e.content);
+                words2.addAll(words);
+            } else {
+                words2.add(e);
+            }
+        }
+        System.out.print("第1.1次分词:");
+        for (Element e1 : words2) {
+            System.out.format("%d:%s \t", e1.type,e1.content );
+        }
+        System.out.print("\n");
+        ArrayList<Element>  word3 = split2(words2);
+        return paraser.pickTime(content, word3);
     }
 
     private static boolean parase_digit_unit(TimeInfo time, Element current,
@@ -1919,5 +1966,276 @@ public class ReminderParser_v1 {
             ret = true;
         }
         return ret;
+    }
+    
+
+    
+    public ArrayList<Element> parser_time_unit(String content) {
+        System.out.println("Regular parser:" + content);
+        ArrayList<Element> elements = new ArrayList<>();
+        HashMap<String, String> value_map = new HashMap<String, String>();
+        boolean found = false;
+        for (int i = 0; i < key_map_reg.length; i++) {
+            String regex1 = key_map_reg[i][0];
+//            System.out.println(regex1);
+            Pattern pattern = Pattern.compile(regex1);
+            Matcher matcher = pattern.matcher(content);
+            if (matcher.find()) {
+//                if (DEBUG) {
+//                System.out.println("group count:" + matcher.groupCount());
+//                System.out.println(matcher.group());
+//                }
+                String find_str = matcher.group();
+                int index = content.indexOf(find_str);
+                int last_index = index+find_str.length();
+//                System.out.println(index+ " : " + last_index);
+                String begin = content.substring(0, index);
+                String end = content.substring(last_index, content.length());
+//                System.out.println(begin+ " : " +find_str+ " : " + end);
+                if (begin.length()!=0) {
+                    Element e1 = new Element(LETTER, begin);
+                    elements.add(e1);
+                }
+                Element e2 = new Element(REGULAR_PARSED, find_str);
+                elements.add(e2);
+                if (end.length()!=0) {
+                    Element e3 = new Element(LETTER, end);
+                    elements.add(e3);
+                }
+//                System.out.println(matcher.group(1));
+//                System.out.println(matcher.group(2));
+                String value = key_map_reg[i][1];
+                String[] values = value.split(";"); // daysofWeek=group(2)
+                for (String s : values) {
+                    String[] expressions = s.split("="); // daysofWeek=group(2)
+                    Pattern pattern_v = null;
+                    Matcher matcher_v = null;
+                    pattern_v = Pattern.compile("group\\((\\d)\\)");
+                    matcher_v = pattern_v.matcher(expressions[1]);
+                    if (matcher_v.find()) {
+//                        System.out.println("group[0] = " + matcher_v.group(0));
+//                        System.out.println("group[1] = " + matcher_v.group(1));
+//                        System.out.println("group[2] = " + matcher.group(2));
+//                        System.out.println("groupCount = " + matcher_v.groupCount());
+                        int group_num = Integer.parseInt(matcher_v.group(1));
+//                        System.out.println("" + matcher.group(group_num));
+                        value_map.put(expressions[0], matcher.group(group_num));
+                    } else {
+                        value_map.put(expressions[0], expressions[1]);
+                    }
+                }
+                found = true;
+                break;
+            }
+            else {
+               // nothing to do
+            }
+        }
+        if (!found) {
+            elements.add(new Element(LETTER, content));
+            System.out.println("Regular result：nothing");
+        } else {
+            readValues(value_map);
+            System.out.println("Regular result：");
+            log();
+        }
+//        Iterator<Entry<String, String>> iter = value_map.entrySet().iterator();
+//        while (iter.hasNext()) {
+//            Map.Entry<String, String> entry = iter.next();
+//            String key = entry.getKey();
+//            String val = entry.getValue();
+//            System.out.print(" " +key +" = " + val);
+//        }
+//        System.out.print("\n");
+        return elements;
+    }
+    
+
+    private boolean readValues(Map<String, String> map) {
+        boolean ret = false;
+        String value ;
+        Calendar c = Calendar.getInstance();
+        value = map.get("defaultHour");
+        if (value!=null) {
+            defaultHour = Integer.parseInt(value);
+        }
+        value = map.get("defaultMinute");
+        if (value!=null) {
+            defaultMinute = Integer.parseInt(value);
+        }
+        value = map.get("weekday");
+        if (value!=null) {
+            weekday = getWeekDay(Integer.parseInt(value));
+        }
+        value = map.get("type");
+        if (value!=null) {
+            type = Integer.parseInt(value);
+        }
+        value = map.get("year");
+        if (value!=null) {
+            year = Integer.parseInt(value);
+        }
+        value = map.get("month");
+        if (value!=null) {
+            month = Integer.parseInt(value);
+        }
+        value = map.get("addMonth");
+        if (value!=null) {
+            addMonth = Integer.parseInt(value);
+        }
+        value = map.get("addDay");
+        if (value!=null) {
+            addDay = Integer.parseInt(value);
+        }
+        value = map.get("addWeek");
+        if (value!=null) {
+            addWeek = Integer.parseInt(value);
+        }
+        value = map.get("month");
+        if (value!=null) {
+            month = Integer.parseInt(value);
+        }
+        value = map.get("day");
+        if (value!=null) {
+            day = Integer.parseInt(value);
+        }
+        value = map.get("hour");
+        if (value!=null) {
+            hour = Integer.parseInt(value);
+            if (value.equalsIgnoreCase("now")) {
+                hour = c.get(Calendar.HOUR_OF_DAY);
+            }
+        }
+        value = map.get("minute");
+        if (value!=null) {
+            minute = Integer.parseInt(value);
+            if (value.equalsIgnoreCase("now")) {
+                minute = c.get(Calendar.MINUTE);
+            }
+        }
+        value = map.get("addMinute");
+        if (value!=null) {
+            addMinute = Integer.parseInt(value);
+        }
+        value = map.get("second");
+        if (value!=null) {
+            second = Integer.parseInt(value);
+        }
+        value = map.get("ampm");
+        if (value!=null) {
+            ampm = Integer.parseInt(value);
+        }
+        value = map.get("repeatType");
+        if (value!=null) {
+            repeatType = ALARM_REPEAT_TYPE_STR2INT_MAP.get(value);
+        }
+        value = map.get("daysofWeek");
+        if (value!=null) {
+            int v = Integer.parseInt(value);
+            daysofWeek.set(v-1,true);
+        }
+        return true;
+    }
+    
+    final static char zh_digit_start_keywords[] = { '十', '一', '二', '三', '四',
+        '五', '六', '七', '八', '九', '两' };
+    private static int getCharType(char c) {
+        int type;
+        if (isDigit(c)) {
+            type = DIGIT;
+        } else if (zh_map_char.get(c) != null) {
+            type = DIGIT;
+        } else {
+            type = LETTER;
+        }
+        return type;
+    }
+    private static boolean isMixedDigit(char c) {
+        boolean ret = false;
+        if (isDigit(c)) {
+            ret = true;;
+        } else {
+            for (char b: zh_digit_start_keywords) {
+                if (b == c) {
+                    ret = true;
+                    break;
+                }
+            }
+        }
+        return ret;
+    }
+    static String parser_zh_number(String content){
+        ArrayList<Element> words = new ArrayList<Element>();
+        StringBuffer sb = new StringBuffer();
+        char start = content.charAt(0);
+        int type; 
+        if (isMixedDigit(start)) {
+            type = DIGIT;
+        } else {
+            type = LETTER;
+        }
+//        int type = getCharType(start);
+        for (int i = 0; i < content.length(); i++) {
+            char a = content.charAt(i);
+            if (type == LETTER && zh_map_char.get(a) != null
+                    && !isContainChar(zh_digit_start_keywords, a)) {
+                // 必须是遇到数字开头的，才认为类型变了，否则仍然为字符，比如毛巾，角落等。
+                type = LETTER;
+            } else if (getCharType(a) != type) {
+                // 类型变了，先存放当前的字段
+                if (sb != null) {
+                    String str = sb.toString();
+                    Element e = new Element(type, str);
+                    words.add(e);
+                    sb = new StringBuffer();
+                }
+                type = getCharType(a);
+            } else {
+                type = getCharType(a);
+            }
+            sb.append(a);
+        }
+        if (sb.length() != 0) {
+            String str = sb.toString();
+            Element e = new Element(type, str);
+            words.add(e);
+            sb = null;
+        }
+//        if (DEBUG) {
+//            int i = 0;
+//            System.out.println("分词-数字:");
+//            for (Element e : words) {
+//                System.out.println(i++ + ":cotent:" + e.content + " 类型："
+//                        + e.type);
+//            }
+//        }
+        sb = new StringBuffer();
+        for (Element e : words) {
+            if (e.type == LETTER) {
+                sb.append(e.content);
+            } else if (e.type == DIGIT) {
+                String digit= convertZhToNumber(e.content);
+                sb.append(digit);
+            }
+        }
+        System.out.println("转换中文数字:" + sb.toString());
+        return sb.toString();
+    }
+    
+    
+    /**
+     * below is log information
+     */
+    final static String repeat_type_strs[] = {
+        "none", "每天","每周","每月","每年","定时","倒计时"
+    };
+
+    void log() {
+        System.out
+        .format("repeatType:%s, year:%d, month:%d, day:%d, " +
+        		"hour:%d, minutes:%d second:%d " +
+        		"defaultHour:%d addDay:%d dayofweek:%s\n",
+                repeat_type_strs[repeatType], year, month, day, hour,minute, second, 
+                defaultHour, addDay,daysofWeek.toString(true));
     }
 }

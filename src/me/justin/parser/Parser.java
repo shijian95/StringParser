@@ -103,13 +103,14 @@ public class Parser {
     public  static ParseResult paraseContent(String content, int prefer_type) {
         ParseResult result = paraseContent(content);
         if (result.getType() == ParseResult.TYPE_MEMO) {
-            if (prefer_type == ParseResult.TYPE_REMIND) {
-                result = RemindParser(content);
-            } else if (prefer_type == ParseResult.TYPE_ACCOUNT) {
-                result = AccountParser(content);
-            } else {
-                result = AccountParser(content);
-            }
+//            if (prefer_type == ParseResult.TYPE_REMIND) {
+//                result = RemindParser(content);
+//            } else if (prefer_type == ParseResult.TYPE_ACCOUNT) {
+//                result = AccountParser(content);
+//            } else {
+//                result = AccountParser(content);
+//            }
+            result = AccountParser(content);
         }
         
         return result;

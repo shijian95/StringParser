@@ -108,7 +108,7 @@ public class AccountParser_v1 {
         return false;
     }
     final static String[] REGS_STRINGS_EXCULDE={
-        "[一两二三四五六七八九十零\\d]+[笔把个位人次批伙场双件斤盒张天]" 
+        "[一两二三四五六七八九十零\\d]+[笔把个位人次批伙场双件斤盒张天子]" 
         + "|" + "[一两二三四五六七八九十零\\d]+月[一两二三四五六七八九十零\\d]+日"
         + "|" + "[一两二三四五六七八九十零\\d]+年"
     };
@@ -117,6 +117,22 @@ public class AccountParser_v1 {
         "(?<=花)\\d+\\.\\d{2}",
         "(?<=花了)\\d+\\.\\d{2}",
         "(?<=花费)\\d+\\.\\d{2}",
+        "(?<=付款)\\d+\\.\\d{2}",
+        "(?<=支)\\d+\\.\\d{2}",
+        "(?<=亏)\\d+\\.\\d{2}",
+        "(?<=用了)\\d+\\.\\d{2}",
+        "(?<=用去)\\d+\\.\\d{2}",
+        "(?<=花去)\\d+\\.\\d{2}",
+        "(?<=付了)\\d+\\.\\d{2}",
+        "(?<=付出)\\d+\\.\\d{2}",
+        "(?<=付)\\d+\\.\\d{2}",
+        "(?<=打出)\\d+\\.\\d{2}",
+        "(?<=用掉)\\d+\\.\\d{2}",
+        "(?<=支用)\\d+\\.\\d{2}",
+        "(?<=划走)\\d+\\.\\d{2}",
+        "(?<=随礼)\\d+\\.\\d{2}",
+        "(?<=消费)\\d+\\.\\d{2}",
+        "(?<=花掉)\\d+\\.\\d{2}",
         };
     
     final static String PATTERNS_INCOME[] = {
@@ -141,7 +157,19 @@ public class AccountParser_v1 {
         "(?<=进账)\\d+\\.\\d{2}",
         "(?<=收回)\\d+\\.\\d{2}",
         "(?<=我分了)\\d+\\.\\d{2}",
-
+        "(?<=获利)\\d+\\.\\d{2}",
+        "(?<=退了我)\\d+\\.\\d{2}",
+        "(?<=退)\\d+\\.\\d{2}",
+        "(?<=退回)\\d+\\.\\d{2}",
+        "(?<=赢)\\d+\\.\\d{2}",
+        "(?<=得)\\d+\\.\\d{2}",
+        "(?<=盈利)\\d+\\.\\d{2}",
+        "(?<=进款)\\d+\\.\\d{2}",
+        "(?<=赚回)\\d+\\.\\d{2}",
+        "(?<=还我)\\d+\\.\\d{2}",
+        "(?<=退我)\\d+\\.\\d{2}",
+        "(?<=得到)\\d+\\.\\d{2}",
+        "(?<=收进)\\d+\\.\\d{2}",
         };
     
     final static String PATTERNS_KEYWORD_INCOME[] = {
@@ -149,6 +177,7 @@ public class AccountParser_v1 {
         "收到.*汇款",
         "收.*礼金",
         "收到.*利息",
+        "收到.*款",
         "领.*津贴",
         "领.*补贴",
         "领.*过节费",
@@ -160,7 +189,20 @@ public class AccountParser_v1 {
         "给了我.*钱",
         "发我红包",
         "到了.*款",
-        "发.*费"
+        "发.*费",
+        "支付.*费",
+        "给了.*红包",
+        "增收.*费",
+        "卖(.*)\\d+\\.\\d{2}",
+        "赢(.*)\\d+\\.\\d{2}",
+        "款到了",
+        "拿到.*补贴",
+        "获得.*利息\\d+\\.\\d{2}",
+        };
+    
+    final static String PATTERNS_KEYWORD_EXPAND[] = {
+        "买(.*)(\\d+\\.\\d{2})",
+        "支付.*费"
         };
     /*
      * 
@@ -191,6 +233,7 @@ public class AccountParser_v1 {
             put("卖了", INCOME_WORD);
             put("报销", INCOME_WORD);
             put("收入", INCOME_WORD);
+            put("给我", INCOME_WORD);
         }
     };
     final static Map<String, Integer> KEY_WORD_3 = new HashMap<String, Integer>() {
@@ -276,9 +319,7 @@ public class AccountParser_v1 {
         Integer type = TYPE_UNKNOWN;
         result.setType(type);
         String str1 = removeExcludeWords(content);
-        
         ArrayList<Element>  words1 = split_by_key_word(str1);
-        
         ArrayList<Element>  words2 = new ArrayList<>();
         for (Element word: words1) {
             if (word.type == CONTENT) {
@@ -288,7 +329,6 @@ public class AccountParser_v1 {
                 words2.add(word);
             }
         }
-        
         if (DEBUG) {
             System.out.println("查找金额");
         }
@@ -397,6 +437,16 @@ public class AccountParser_v1 {
                 Matcher matcher = pattern.matcher(last_string);
                 if (matcher.find()) {
                     type = TYPE_INCOME;
+                    pattern_matched = true;
+                    break;
+                }
+            }
+        if (!pattern_matched)
+            for (String regex : PATTERNS_KEYWORD_EXPAND) {
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(last_string);
+                if (matcher.find()) {
+                    type = TYPE_EXPAND;
                     pattern_matched = true;
                     break;
                 }

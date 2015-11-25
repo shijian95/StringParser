@@ -65,7 +65,7 @@ public class TestAccount {
         test("今天银行存入7000元是公司工资", "7000.00", TYPE_INCOME);
         test("昨天银行扣款2350元房贷", "2350.00", TYPE_EXPAND);
         test("十万块钱存款到期，获得一笔存款利息325元", "325.00", TYPE_INCOME);
-        test("抢了块价值100块的寿山石", "1000.00", TYPE_EXPAND);
+        test("抢了块价值100块的寿山石", "100.00", TYPE_EXPAND);
         test("花了7200，买了一块寿山石", "7200.00", TYPE_EXPAND);
         test("买了一块寿山石用了7200", "7200.00", TYPE_EXPAND);
         test("小秘跑步回家买了3块糖给老杜吃了2块花了5块钱", "5.00", TYPE_EXPAND);
@@ -199,6 +199,6 @@ public class TestAccount {
     
     public static void main(String[] args) {
         testAccout();
-        
+        test("小秘跑步回家买了3块糖给老杜吃了2块花了5块钱", "5.00", TYPE_EXPAND);
     }
 }

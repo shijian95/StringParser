@@ -108,14 +108,55 @@ public class AccountParser_v1 {
         return false;
     }
     final static String[] REGS_STRINGS_EXCULDE={
-        "[一两二三四五六七八九十零\\d]+[笔把个位人次批伙场双件斤盒张天子]" 
+        "[一两二三四五六七八九十零\\d]+[笔把个位人次批伙场双件斤盒张天子套支台]" 
         + "|" + "[一两二三四五六七八九十零\\d]+月[一两二三四五六七八九十零\\d]+日"
-        + "|" + "[一两二三四五六七八九十零\\d]+年"
+        + "|" + "[一两二三四五六七八九十零\\d]+年",
+        "[\\d][笔把个位人次批伙场双件斤盒张天子套支台]"
     };
+    
+    
+    final static String REGEXS_ACCOUNT[][] = {
+        { "(花)(\\d+\\.\\d{2})", "amount=group(2);type=expand" },
+        { "(花了)(\\d+\\.\\d{2})", "amount=group(2);type=expand" },
+        { "(还给\\D*)(\\d+\\.\\d{2})", "amount=group(2);type=expand" },
+        { "(赚回)(\\d+\\.\\d{2})", "amount=group(2);type=income" },
+        { "(赚)(\\d+\\.\\d{2})", "amount=group(2);type=income" },
+        { "(收来)(\\d+\\.\\d{2})", "amount=group(2);type=income" },
+        
+        { "给了我\\D*(\\d+\\.\\d{2})\\D*红包", "amount=group(1);type=income" },
+        { "给我\\D*(\\d+\\.\\d{2})\\D*红包", "amount=group(1);type=income" },
+        { "给了\\D*(\\d+\\.\\d{2})\\D*红包", "amount=group(1);type=expand" },
+        { "给\\D*(\\d+\\.\\d{2})\\D*红包", "amount=group(1);type=expand" },
+
+        { "给\\D*低保费(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "销售(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "我还了(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
+        { "还了(\\d+\\.\\d{2})给我", "amount=group(1);type=income" },
+        { "还了(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "返还\\D*(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
+        { "订购\\D*(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
+        { "订购\\D*(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
+        { "售出(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "掉了(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
+        { "丢了(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
+        { "少了(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
+        { "损失(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
+        { "中奖(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "中彩(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "拿到(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "拿了\\D+(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
+        { "抢了\\D+(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
+      
+//        { "买\\D*(\\d+\\.\\d{2})\\D*(\\d+\\.\\d{2})", "amount=group(2);type=expand" },
+//        { "卖\\D*(\\d+\\.\\d{2})\\D*(\\d+\\.\\d{2})", "amount=group(2);type=income" },
+//        { "(买\\D*)(\\d+\\.\\d{2})", "amount=group(2);type=expand" },
+//        { "(卖\\D*)(\\d+\\.\\d{2})", "amount=group(2);type=income" },
+        };
+    
     
     final static String PATTERNS_EXPAND[] = {
         "(?<=花)\\d+\\.\\d{2}",
-        "(?<=花了)\\d+\\.\\d{2}",
+//        "(?<=花了)\\d+\\.\\d{2}",
         "(?<=花费)\\d+\\.\\d{2}",
         "(?<=付款)\\d+\\.\\d{2}",
         "(?<=支)\\d+\\.\\d{2}",
@@ -190,19 +231,21 @@ public class AccountParser_v1 {
         "发我红包",
         "到了.*款",
         "发.*费",
-        "支付.*费",
-        "给了.*红包",
         "增收.*费",
-        "卖(.*)\\d+\\.\\d{2}",
         "赢(.*)\\d+\\.\\d{2}",
         "款到了",
         "拿到.*补贴",
         "获得.*利息\\d+\\.\\d{2}",
+        "(卖\\D*)(\\d+\\.\\d{2})",
+        "查收.*款",
         };
     
     final static String PATTERNS_KEYWORD_EXPAND[] = {
         "买(.*)(\\d+\\.\\d{2})",
-        "支付.*费"
+        "支付.*费",
+        "送.*费",
+        "交.*费",
+        "(买\\D*)(\\d+\\.\\d{2})"
         };
     /*
      * 
@@ -369,8 +412,15 @@ public class AccountParser_v1 {
             sBuilder.append(e.content);
         }
         String last_string = sBuilder.toString();
-        System.out.println("结果：" + sBuilder.toString());        
-        if (amounts.size() == 1 || amounts.size() > 1) {
+//        System.out.println("结果：" + sBuilder.toString());
+        
+        AccountParserResult ret = parse_amount(last_string);
+        if (ret != null) {
+            type = ret.getType();
+            amount = ret.getAmount();
+        }
+        
+        if (ret==null && amounts.size() !=0) {
             TwoValue<Integer, Double> retTwoValue = parseType(last_string);
             if (retTwoValue.a != TYPE_UNKNOWN) {
                 type = retTwoValue.a;
@@ -411,7 +461,9 @@ public class AccountParser_v1 {
             if (matcher.find()) {
                 type = TYPE_EXPAND;
                 String s = matcher.group();
+                if (DEBUG) {
                 System.out.println("Out金额：" + s);
+                }
                 amount = Double.parseDouble(s);
                 pattern_matched = true;
                 break;
@@ -425,7 +477,9 @@ public class AccountParser_v1 {
                 if (matcher.find()) {
                     type = TYPE_INCOME;
                     String s = matcher.group();
+                    if (DEBUG) {
                     System.out.println("In金额：" + s);
+                    }
                     amount = Double.parseDouble(s);
                     pattern_matched = true;
                     break;
@@ -1099,4 +1153,76 @@ public class AccountParser_v1 {
         return false;
     }
 
+    
+
+    public static AccountParserResult parse_amount(String content) {
+//        System.out.println("Regular parser:" + content);
+        AccountParserResult result = null;
+        HashMap<String, String> value_map = new HashMap<String, String>();
+        boolean found = false;
+        for (int i = 0; i < REGEXS_ACCOUNT.length; i++) {
+            String regex1 = REGEXS_ACCOUNT[i][0];
+//            System.out.println(regex1);
+            Pattern pattern = Pattern.compile(regex1);
+            Matcher matcher = pattern.matcher(content);
+            if (matcher.find()) {
+                if (DEBUG) {
+                    System.out.println("group count:" + matcher.groupCount());
+                    System.out.println(matcher.group());
+                }
+                String find_str = matcher.group();
+                int index = content.indexOf(find_str);
+                int last_index = index+find_str.length();
+                if (DEBUG) {
+//                System.out.println(index+ " : " + last_index);
+//                String begin = content.substring(0, index);
+//                String end = content.substring(last_index, content.length());
+//                System.out.println(begin+ " : " +find_str+ " : " + end);
+
+//                System.out.println(matcher.group(1));
+//                System.out.println(matcher.group(2));
+                }
+                String value = REGEXS_ACCOUNT[i][1];
+                String[] values = value.split(";"); // daysofWeek=group(2)
+                for (String s : values) {
+                    String[] expressions = s.split("="); // daysofWeek=group(2)
+                    Pattern pattern_v = null;
+                    Matcher matcher_v = null;
+                    pattern_v = Pattern.compile("group\\((\\d)\\)");
+                    matcher_v = pattern_v.matcher(expressions[1]);
+                    if (matcher_v.find()) {
+//                        System.out.println("group[0] = " + matcher_v.group(0));
+//                        System.out.println("group[1] = " + matcher_v.group(1));
+//                        System.out.println("group[2] = " + matcher.group(2));
+//                        System.out.println("groupCount = " + matcher_v.groupCount());
+//                        System.out.println("" + matcher.group(group_num));
+                        int group_num = Integer.parseInt(matcher_v.group(1));
+                        value_map.put(expressions[0], matcher.group(group_num));
+                    } else {
+                        value_map.put(expressions[0], expressions[1]);
+                    }
+                }
+                found = true;
+                break;
+            }
+            else {
+               // nothing to do
+            }
+        }
+        if (!found) {
+//            System.out.println("Regular result：nothing");
+        } else {
+            result = new AccountParserResult();
+            String type = value_map.get("type");
+            String amount = value_map.get("amount");
+            if (type.equalsIgnoreCase("expand")) {
+                result.setType(AccountParser_v1.TYPE_EXPAND);
+            } else {
+                result.setType(AccountParser_v1.TYPE_INCOME);
+            }
+            result.setAmount(Double.parseDouble(amount));
+//            System.out.println("Regular result：" + type +":"+ amount);
+       }
+       return result;
+    }
 }

@@ -114,7 +114,8 @@ public class ReminderParser_v1 {
     
     final static String[][] key_map_reg = {
         { "每(星期|礼拜|周)([1-7])", "daysofWeek=group(2);repeatType=ALARM_REPEAT_TYPE_WEEK" },
-        { "每(星期|礼拜|周)([一二三四五六七])",  "daysofWeek=group(2);repeatType=ALARM_REPEAT_TYPE_WEEK" }, 
+        { "每(星期|礼拜|周)(日|天)", "daysofWeek=7;repeatType=ALARM_REPEAT_TYPE_WEEK" },
+        { "(星期|礼拜|周)([1-6])到(星期|礼拜|周)([1-6日])",  "var1=group(2);var2=group(4);daysofWeek=func_var2_parseDaysOfWeek;repeatType=ALARM_REPEAT_TYPE_WEEK" }, 
    };
     
     final static Map<String, Integer> time_key_type_map_1 = new HashMap<String, Integer>() {
@@ -2039,14 +2040,14 @@ public class ReminderParser_v1 {
             System.out.println("Regular result：");
             log();
         }
-//        Iterator<Entry<String, String>> iter = value_map.entrySet().iterator();
-//        while (iter.hasNext()) {
-//            Map.Entry<String, String> entry = iter.next();
-//            String key = entry.getKey();
-//            String val = entry.getValue();
-//            System.out.print(" " +key +" = " + val);
-//        }
-//        System.out.print("\n");
+        Iterator<Entry<String, String>> iter = value_map.entrySet().iterator();
+        while (iter.hasNext()) {
+            Map.Entry<String, String> entry = iter.next();
+            String key = entry.getKey();
+            String val = entry.getValue();
+            System.out.print(" " +key +" = " + val);
+        }
+        System.out.print("\n");
         return elements;
     }
     
@@ -2054,6 +2055,16 @@ public class ReminderParser_v1 {
     private boolean readValues(Map<String, String> map) {
         boolean ret = false;
         String value ;
+        
+        Iterator<Entry<String, String>> iter = map.entrySet().iterator();
+        while (iter.hasNext()) {
+            Map.Entry<String, String> entry = iter.next();
+            String key = entry.getKey();
+            String val = entry.getValue();
+            System.out.print(" " +key +" = " + val);
+        }
+        System.out.print("\n");
+        
         Calendar c = Calendar.getInstance();
         value = map.get("defaultHour");
         if (value!=null) {
@@ -2131,11 +2142,19 @@ public class ReminderParser_v1 {
         }
         value = map.get("daysofWeek");
         if (value!=null) {
-            int v = Integer.parseInt(value);
-            daysofWeek.set(v-1,true);
+            if (value.startsWith("func_")) {
+                String var1 = map.get("var1");
+                String var2 = map.get("var2");
+                daysofWeek = parseDaysOfWeek(var1,var2);
+            } else {
+                int v = Integer.parseInt(value);
+                daysofWeek.set(v-1,true);
+            }
         }
         return true;
     }
+    
+    
     
     final static char zh_digit_start_keywords[] = { '十', '一', '二', '三', '四',
         '五', '六', '七', '八', '九', '两' };
@@ -2181,6 +2200,8 @@ public class ReminderParser_v1 {
                     && !isContainChar(zh_digit_start_keywords, a)) {
                 // 必须是遇到数字开头的，才认为类型变了，否则仍然为字符，比如毛巾，角落等。
                 type = LETTER;
+            } else if (type == LETTER && a == '.'){
+                type = LETTER;
             } else if (getCharType(a) != type) {
                 // 类型变了，先存放当前的字段
                 if (sb != null) {
@@ -2222,6 +2243,28 @@ public class ReminderParser_v1 {
         return sb.toString();
     }
     
+    /*
+     * @param: begin_week 1~6
+     */
+    private static DaysOfWeek parseDaysOfWeek(String begin_week, String end_week) {
+        int b = convertToWeekDay(begin_week);
+        int e = convertToWeekDay(end_week);
+        DaysOfWeek days = new DaysOfWeek(0);
+        for (int i = b; i<=e;i++) {
+            days.set(i,true);
+        }
+        return days;
+    }
+    
+    private static int convertToWeekDay(String weekday) {
+        int ret = 0;
+        if (weekday.equalsIgnoreCase("日")){
+            ret = 6;
+        } else if(weekday.matches("[123456]")){
+            ret = Integer.parseInt(weekday)-1;
+        }
+        return ret;
+    }
     
     /**
      * below is log information

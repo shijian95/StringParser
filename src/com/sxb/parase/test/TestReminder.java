@@ -658,6 +658,50 @@ public class TestReminder {
         assertReminder("每星期二中午提醒我", expect);
     }
     
+   static void test_14() {
+       Alarm expect = new Alarm();
+       expect.type = Alarm.ALARM_TYPE_RELATIVE;
+       expect.repeatType = Alarm.ALARM_REPEAT_TYPE_WEEK;
+       expect.year = 0;
+       expect.month = 0;
+       expect.day = 0;
+       expect.hour = 17;
+       expect.minutes = 0;
+       expect.second = 0;
+       expect.ampm = 2;
+       DaysOfWeek daysofWeek = new DaysOfWeek(0);
+       daysofWeek.set(1, true);
+       daysofWeek.set(2, true);
+       daysofWeek.set(3, true);
+       daysofWeek.set(4, true);
+       daysofWeek.set(5, true);
+       daysofWeek.set(6, true);
+       expect.daysOfWeek = daysofWeek;
+       assertReminder("周二到周日的下午五点，提醒我接孩子", expect);
+   }
+
+   static void test_15() {
+       Alarm expect = new Alarm();
+       expect.type = Alarm.ALARM_TYPE_RELATIVE;
+       expect.repeatType = Alarm.ALARM_REPEAT_TYPE_WEEK;
+       expect.year = 0;
+       expect.month = 0;
+       expect.day = 0;
+       expect.hour = 17;
+       expect.minutes = 0;
+       expect.second = 0;
+       expect.ampm = 2;
+       DaysOfWeek daysofWeek = new DaysOfWeek(0);
+       daysofWeek.set(1, true);
+       daysofWeek.set(2, true);
+       daysofWeek.set(3, true);
+       daysofWeek.set(4, true);
+       daysofWeek.set(5, true);
+       daysofWeek.set(6, true);
+       expect.daysOfWeek = daysofWeek;
+       assertReminder("星期二到星期日的下午五点，提醒我接孩子", expect);
+   }
+   
     public static void testReminder() {
         Alarm expect;
         DaysOfWeek daysofWeek;
@@ -671,6 +715,8 @@ public class TestReminder {
         int nowMinute = c.get(Calendar.MINUTE);
         int nowSecond = c.get(Calendar.SECOND);
         
+        test_15();
+        test_14();
         test_13();
         test_12();
         test_11();
@@ -736,25 +782,7 @@ public class TestReminder {
         expect.interval = (30 * 60) * 1000;
         assertReminder("从10点到晚上11点，每隔半小时提醒我", expect);
 
-        expect = new Alarm();
-        expect.type = Alarm.ALARM_TYPE_RELATIVE;
-        expect.repeatType = Alarm.ALARM_REPEAT_TYPE_WEEK;
-        expect.year = 0;
-        expect.month = 0;
-        expect.day = 0;
-        expect.hour = 17;
-        expect.minutes = 0;
-        expect.second = 0;
-        expect.ampm = 2;
-        daysofWeek = new DaysOfWeek(0);
-        daysofWeek.set(1, true);
-        daysofWeek.set(2, true);
-        daysofWeek.set(3, true);
-        daysofWeek.set(4, true);
-        daysofWeek.set(5, true);
-        daysofWeek.set(6, true);
-        expect.daysOfWeek = daysofWeek;
-        assertReminder("周二到周日的下午五点，提醒我接孩子", expect);
+
 
         expect = new Alarm();
         expect.type = Alarm.ALARM_TYPE_RELATIVE;
@@ -1305,8 +1333,10 @@ public class TestReminder {
      * @param args
      */
     public static void main(String[] args) {   
-//        testReminder();
-        test_3();
+        testReminder();
+//        test_14();
+//        test_15();
+//        test_3();
 //        test_4();
 //        test_9();
 //        test_12();

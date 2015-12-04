@@ -108,10 +108,10 @@ public class AccountParser_v1 {
         return false;
     }
     final static String[] REGS_STRINGS_EXCULDE={
-        "[一两二三四五六七八九十零\\d]+[笔把个位人次批伙场双件斤盒张天子套支台下]" 
+        "[一两二三四五六七八九十零\\d]+[笔把个位人次批伙场双件斤盒张天子套支台下期]" 
         + "|" + "[一两二三四五六七八九十零\\d]+月[一两二三四五六七八九十零\\d]+日"
         + "|" + "[一两二三四五六七八九十零\\d]+年",
-        "[\\d][笔把个位人次批伙场双件斤盒张天子套支台下]"
+        "[\\d][笔把个位人次批伙场双件斤盒张天子套支台下期]"
     };
     
     
@@ -135,7 +135,8 @@ public class AccountParser_v1 {
         { "还了(\\d+\\.\\d{2})", "amount=group(1);type=income" },
         { "返还\\D*(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
         { "订购\\D*(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
-        { "订购\\D*(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
+        { "报销.*费(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "打的\\D*(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
         { "售出(\\d+\\.\\d{2})", "amount=group(1);type=income" },
         { "掉了(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
         { "丢了(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
@@ -146,6 +147,8 @@ public class AccountParser_v1 {
         { "拿到(\\d+\\.\\d{2})", "amount=group(1);type=income" },
         { "拿了\\D+(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
         { "抢了\\D+(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
+        { "小费\\D+(\\d+\\.\\d{2}).*给我", "amount=group(1);type=income" },
+        { "(\\d+\\.\\d{2})钱.*给我了", "amount=group(1);type=income" },
       
 //        { "买\\D*(\\d+\\.\\d{2})\\D*(\\d+\\.\\d{2})", "amount=group(2);type=expand" },
 //        { "卖\\D*(\\d+\\.\\d{2})\\D*(\\d+\\.\\d{2})", "amount=group(2);type=income" },
@@ -276,7 +279,6 @@ public class AccountParser_v1 {
             put("卖了", INCOME_WORD);
             put("报销", INCOME_WORD);
             put("收入", INCOME_WORD);
-            put("给我", INCOME_WORD);
         }
     };
     final static Map<String, Integer> KEY_WORD_3 = new HashMap<String, Integer>() {

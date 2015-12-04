@@ -9,10 +9,13 @@ import me.justin.parser.TwoValue;
 
 public class TestAccount {
     final static String type_strs[] = { "", "提醒", "收入", "支出", "备忘" };
+    public final static int TYPE_UNKNOWN = 4;
     public final static int TYPE_INCOME = 2;
     public final static int TYPE_EXPAND = 3;
     public static void testAccout() {
 
+        test("生活帮2期合同，你给我提交了两个合同，一个是41万，一个是37万，到底用那个", "0.00", TYPE_UNKNOWN);
+        test("今天打的57", "57.00", TYPE_EXPAND);
         test("今天付款192元买文具", "192.00", TYPE_EXPAND);
         test("7月17号叫财务支1000元给小刘作招待费", "1000.00", TYPE_EXPAND);
         test("傍晚卖东西算错亏120元", "120.00", TYPE_EXPAND);
@@ -188,10 +191,14 @@ public class TestAccount {
     private static void test(String input, String expect, int type) {
         AccountParserResult result = AccountParser_v1.parse(input);
         String amountString = String.format("%.2f", result.getAmount());
-        if (!amountString.equals(expect) || result.getType()!=type) {
+        if (result.getType()==TYPE_UNKNOWN && type == TYPE_UNKNOWN) {
+            System.out.format("Input:%s \tOutput: type:%s \t%s == %s \n",
+                    input, result.getTypedescription(), amountString, expect);
+        } else if (!amountString.equals(expect) || result.getType()!=type) {
             System.err.format("Input:%s \tOutput: type:%s \t%s != %s \n",
                     input, result.getTypedescription(), amountString, expect);
-        } else {
+        }
+        else {
             System.out.format("Input:%s \tOutput: type:%s \t%s == %s \n",
                     input, result.getTypedescription(), amountString, expect);
         }
@@ -199,6 +206,7 @@ public class TestAccount {
     
     public static void main(String[] args) {
         testAccout();
-        test("小秘跑步回家买了3块糖给老杜吃了2块花了5块钱", "5.00", TYPE_EXPAND);
+//        test("生活帮2期合同，你给我提交了两个合同，一个是41万，一个是37万，到底用那个", "0.00", TYPE_UNKNOWN);
+//        test("小秘跑步回家买了3块糖给老杜吃了2块花了5块钱", "5.00", TYPE_EXPAND);
     }
 }

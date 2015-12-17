@@ -130,7 +130,7 @@ public class Parser {
         int type = paraseContentType(recFullString);
         switch (type) {
         case ParseResult.TYPE_REMIND:
-            Alarm alarm = ReminderParser
+/*            Alarm alarm = ReminderParser
                     .parseReminderResult(recFullString);
             if (alarm.type == Alarm.ALARM_TYPE_FAILED) {
                 Memo memo = new Memo();
@@ -143,7 +143,8 @@ public class Parser {
                     alarm.repeatType = Alarm.ALARM_REPEAT_TYPE_STOPWATCH;
                 }
                 result = new ParseResult(ParseResult.TYPE_REMIND, alarm);
-            }
+            }*/
+            result = RemindParser(recFullString);
             break;
         case ParseResult.TYPE_MEMO: {
             Memo memo = new Memo();
@@ -162,13 +163,6 @@ public class Parser {
             break;
         }
         return result;
-    }
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        // TODO Auto-generated method stub
-
     }
 
 }

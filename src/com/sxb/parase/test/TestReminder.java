@@ -701,7 +701,26 @@ public class TestReminder {
        expect.daysOfWeek = daysofWeek;
        assertReminder("星期二到星期日的下午五点，提醒我接孩子", expect);
    }
-   
+   static void test_16() {
+       Alarm expect = new Alarm();
+       expect.type = Alarm.ALARM_TYPE_ABSOLUTE;
+       expect.repeatType = Alarm.ALARM_REPEAT_TYPE_NONE;
+       expect.month = 12;
+       expect.day = 23;
+       expect.hour = 12;
+       expect.minutes = 0;
+       expect.second = 0;
+       expect.ampm = 1;
+//       DaysOfWeek daysofWeek = new DaysOfWeek(0);
+//       daysofWeek.set(1, true);
+//       daysofWeek.set(2, true);
+//       daysofWeek.set(3, true);
+//       daysofWeek.set(4, true);
+//       daysofWeek.set(5, true);
+//       daysofWeek.set(6, true);
+//       expect.daysOfWeek = daysofWeek;
+       assertReminder("12月23日中午12点提醒我", expect);
+   }
     public static void testReminder() {
         Alarm expect;
         DaysOfWeek daysofWeek;
@@ -715,6 +734,7 @@ public class TestReminder {
         int nowMinute = c.get(Calendar.MINUTE);
         int nowSecond = c.get(Calendar.SECOND);
         
+        test_16();
         test_15();
         test_14();
         test_13();

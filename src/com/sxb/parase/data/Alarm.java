@@ -312,6 +312,11 @@ public final class Alarm  {
   }
 
   public void log() {
-//      Log.v("Alarm", "content:" + this.label              + "remoteID:" + this.remoteId);
+      System.out
+      .format("year:%d, month:%d, day:%d, " +
+              "hour:%d, minutes:%d second:%d " +
+              "dayofweek:%s",
+              year, month, day, hour, minutes, second, 
+              daysOfWeek.toString(true));
   }
 }

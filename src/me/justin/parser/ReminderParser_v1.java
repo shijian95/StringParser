@@ -113,9 +113,10 @@ public class ReminderParser_v1 {
     private final static String[] second_strs = { "秒" };
     
     final static String[][] key_map_reg = {
-        { "每(星期|礼拜|周)([1-7])", "daysofWeek=group(2);repeatType=ALARM_REPEAT_TYPE_WEEK" },
-        { "每(星期|礼拜|周)(日|天)", "daysofWeek=7;repeatType=ALARM_REPEAT_TYPE_WEEK" },
-        { "(星期|礼拜|周)([1-6])到(星期|礼拜|周)([1-6日])",  "var1=group(2);var2=group(4);daysofWeek=func_var2_parseDaysOfWeek;repeatType=ALARM_REPEAT_TYPE_WEEK" }, 
+        { "每(星期|礼拜|周)([1-7一二三四五六天日])", "var1=group(2);daysofWeek=func_var2_parseDaysOfWeek;repeatType=ALARM_REPEAT_TYPE_WEEK" },
+        { "(星期|礼拜|周)([1-7一二三四五六天日])到(星期|礼拜|周)([1-7一二三四五六天日])",  "var1=group(2);var2=group(4);daysofWeek=func_var2_parseDaysOfWeek;repeatType=ALARM_REPEAT_TYPE_WEEK" }, 
+        { "下(星期|礼拜|周)([1-6一二三四五六天日])",  "var1=group(2);weekday=func_var1_getWeekDay;addWeek=1" }, 
+        { "(星期|礼拜|周)([1-6一二三四五六天日])", "var1=group(2);weekday=func_var1_parseWeekDay;" },
    };
     
     final static Map<String, Integer> time_key_type_map_1 = new HashMap<String, Integer>() {
@@ -754,13 +755,15 @@ public class ReminderParser_v1 {
     }
     
     public static Alarm parseReminderResult(String content) {
-        String ret1 = parser_zh_number(content);  //转换中文数字到阿拉伯数字 简化处理
+//        String ret1 = parser_zh_number(content);  //转换中文数字到阿拉伯数字 简化处理
         ReminderParser_v1 paraser = new ReminderParser_v1(); 
-        ArrayList<Element> words1 = paraser.parser_time_unit(ret1);  //用正则表达式先进行解析
+        ArrayList<Element> words1 = paraser.parser_time_unit(content);  //用正则表达式先进行解析
+        paraser.log();
         ArrayList<Element> words2 = new ArrayList<>();
         for (Element e: words1) {
             if (e.type == LETTER) {
-                ArrayList<Element> words = split1(e.content);
+                String str = parser_zh_number(e.content); //转换中文数字到阿拉伯数字 简化处理
+                ArrayList<Element> words = split1(str);
                 words2.addAll(words);
             } else {
                 words2.add(e);
@@ -870,6 +873,34 @@ public class ReminderParser_v1 {
         return ret;
     }
 
+    private static int getWeekDay(String weekday_str) {
+        int ret = 0;
+        if (weekday_str.equalsIgnoreCase("一")||
+                weekday_str.equalsIgnoreCase("1")){
+                ret = Calendar.MONDAY;
+        } else if(weekday_str.equalsIgnoreCase("二")||
+                weekday_str.equalsIgnoreCase("2")){
+                ret = Calendar.TUESDAY;
+        } else if(weekday_str.equalsIgnoreCase("三")||
+                weekday_str.equalsIgnoreCase("3")){
+                ret = Calendar.THURSDAY;
+        } else if(weekday_str.equalsIgnoreCase("四")||
+                weekday_str.equalsIgnoreCase("4")){
+                ret = Calendar.WEDNESDAY;
+        } else if(weekday_str.equalsIgnoreCase("五")||
+                weekday_str.equalsIgnoreCase("5")){
+                ret = Calendar.FRIDAY;
+        } else if(weekday_str.equalsIgnoreCase("六")||
+                weekday_str.equalsIgnoreCase("6")){
+                ret = Calendar.SATURDAY;
+        } else if(weekday_str.equalsIgnoreCase("天")||
+                weekday_str.equalsIgnoreCase("日")||
+                weekday_str.equalsIgnoreCase("7")){
+                ret = Calendar.SUNDAY;
+        } 
+        return ret;
+    }
+    
     private static boolean parase_week_unit_digit(TimeInfo time,
             Element current, Element next) {
         boolean handled = false;
@@ -1195,12 +1226,8 @@ public class ReminderParser_v1 {
             }
         }
         if (DEBUG) {
-            System.out
-                    .format("type:%d, year:%d, month:%d, day:%d, hour:%d,deaulthour:%d" +
-                    		" minutes:%d second:%d " +
-                    		"addDay:%d \n",
-                            repeatType, year, month, day, hour,defaultHour, 
-                            minute,  second, addDay);
+            System.out.println("第三次分词结果：");
+            log();
         }
         
 
@@ -1334,9 +1361,12 @@ public class ReminderParser_v1 {
             }
         }
         // 处理周的情况，需要根据周计算日期，这种情况下 年，月，日应该都是为0
-        if (type == Alarm.ALARM_TYPE_ABSOLUTE && weekday != -1) {
+/*        if (type == Alarm.ALARM_TYPE_ABSOLUTE && weekday != -1) {
             int curDay = c.get(Calendar.DAY_OF_YEAR);
             c.set(Calendar.DAY_OF_WEEK, weekday);
+            if(addWeek != 0) {  //处理下周一的情况，这里 的addWeek 应该是一周
+                c.add(Calendar.WEEK_OF_YEAR, addWeek);
+            }
             int d = c.get(Calendar.DAY_OF_YEAR);
             if (d < curDay){
                 c.add(Calendar.WEEK_OF_YEAR, 1);
@@ -1344,7 +1374,8 @@ public class ReminderParser_v1 {
             alarm.year = c.get(Calendar.YEAR);
             alarm.month = c.get(Calendar.MONTH) + 1;
             alarm.day = c.get(Calendar.DAY_OF_MONTH);
-        }
+            alarm.log();
+        }*/
         if (type == Alarm.ALARM_TYPE_ABSOLUTE) {
             if (year != 0)
                 alarm.year = year;
@@ -1413,18 +1444,20 @@ public class ReminderParser_v1 {
                     addOneDay(alarm);
                 }
             } else if (weekday != -1) {
-                //处理周的情况
-                c.setTimeInMillis(System.currentTimeMillis());
+                //处理周的情况，需要根据周计算日期
                 int curDay = c.get(Calendar.DAY_OF_YEAR);
                 c.set(Calendar.DAY_OF_WEEK, weekday);
+                if(addWeek != 0) {  //处理下周一的情况，这里 的addWeek 应该是一周
+                    c.add(Calendar.WEEK_OF_YEAR, addWeek);
+                }
                 int d = c.get(Calendar.DAY_OF_YEAR);
-                if (d < curDay ||
-                        (d == curDay&&isTimePassed(alarm))){
+                if (d < curDay){
                     c.add(Calendar.WEEK_OF_YEAR, 1);
                 }
                 alarm.year = c.get(Calendar.YEAR);
                 alarm.month = c.get(Calendar.MONTH) + 1;
                 alarm.day = c.get(Calendar.DAY_OF_MONTH);
+                alarm.log();
             }
         } else if (repeatType == Alarm.ALARM_REPEAT_TYPE_WEEK
                 || repeatType == Alarm.ALARM_REPEAT_TYPE_DAY
@@ -2076,7 +2109,12 @@ public class ReminderParser_v1 {
         }
         value = map.get("weekday");
         if (value!=null) {
-            weekday = getWeekDay(Integer.parseInt(value));
+            if (value.startsWith("func_")) {
+                String var1 = map.get("var1");
+                weekday = getWeekDay(var1);
+            } else {
+                weekday = getWeekDay(Integer.parseInt(value));
+            }
         }
         value = map.get("type");
         if (value!=null) {
@@ -2248,21 +2286,48 @@ public class ReminderParser_v1 {
      */
     private static DaysOfWeek parseDaysOfWeek(String begin_week, String end_week) {
         int b = convertToWeekDay(begin_week);
-        int e = convertToWeekDay(end_week);
         DaysOfWeek days = new DaysOfWeek(0);
-        for (int i = b; i<=e;i++) {
-            days.set(i,true);
+        if (end_week!=null) {
+            int e = convertToWeekDay(end_week);
+            for (int i = b; i<=e;i++) {
+                days.set(i,true);
+            }
+        } else {
+            days.set(b,true);
         }
         return days;
     }
     
-    private static int convertToWeekDay(String weekday) {
+    //for daysOfWeek
+    private static int convertToWeekDay(String daysOfWeek) {
         int ret = 0;
-        if (weekday.equalsIgnoreCase("日")){
+        if (daysOfWeek.equalsIgnoreCase("日") || daysOfWeek.equalsIgnoreCase("天") ){
             ret = 6;
-        } else if(weekday.matches("[123456]")){
-            ret = Integer.parseInt(weekday)-1;
-        }
+        } else if(daysOfWeek.matches("[123456]")){
+            ret = Integer.parseInt(daysOfWeek)-1;
+        } else if (daysOfWeek.equalsIgnoreCase("一")||
+                daysOfWeek.equalsIgnoreCase("1")){
+                ret = 0;
+        } else if(daysOfWeek.equalsIgnoreCase("二")||
+                daysOfWeek.equalsIgnoreCase("2")){
+            ret = 1;
+        } else if(daysOfWeek.equalsIgnoreCase("三")||
+                daysOfWeek.equalsIgnoreCase("3")){
+                ret = 2;
+        } else if(daysOfWeek.equalsIgnoreCase("四")||
+                daysOfWeek.equalsIgnoreCase("4")){
+                ret = 3;
+        } else if(daysOfWeek.equalsIgnoreCase("五")||
+                daysOfWeek.equalsIgnoreCase("5")){
+                ret = 4;
+        } else if(daysOfWeek.equalsIgnoreCase("六")||
+                daysOfWeek.equalsIgnoreCase("6")){
+                ret = 5;
+        } else if(daysOfWeek.equalsIgnoreCase("天")||
+                daysOfWeek.equalsIgnoreCase("日")||
+                daysOfWeek.equalsIgnoreCase("7")){
+                ret = 6;
+        } 
         return ret;
     }
     
@@ -2272,13 +2337,25 @@ public class ReminderParser_v1 {
     final static String repeat_type_strs[] = {
         "none", "每天","每周","每月","每年","定时","倒计时"
     };
-
+    
+    private static void checkWeek(Alarm expect, Calendar c, int nowHour,
+            int nowMinute, int nowSecond) {
+        if (expect.hour < nowHour || expect.hour == nowHour
+                && expect.minutes <= nowMinute || expect.hour == nowHour
+                && expect.minutes == nowMinute && expect.second <= nowSecond) {
+            c.setTimeInMillis(System.currentTimeMillis());
+            c.add(Calendar.WEEK_OF_YEAR, 1);
+            expect.year = c.get(Calendar.YEAR);
+            expect.month = c.get(Calendar.MONTH) + 1;
+            expect.day = c.get(Calendar.DAY_OF_MONTH);
+        }
+    }
     void log() {
         System.out
         .format("repeatType:%s, year:%d, month:%d, day:%d, " +
         		"hour:%d, minutes:%d second:%d " +
-        		"defaultHour:%d addDay:%d dayofweek:%s\n",
+        		"defaultHour:%d addDay:%d dayofweek:%s weekday:%d addWeek:%d\n",
                 repeat_type_strs[repeatType], year, month, day, hour,minute, second, 
-                defaultHour, addDay,daysofWeek.toString(true));
+                defaultHour, addDay,daysofWeek.toString(true), weekday, addWeek);
     }
 }

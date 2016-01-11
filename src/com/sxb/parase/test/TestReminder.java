@@ -401,7 +401,7 @@ public class TestReminder {
         expect.minutes = 0;
         expect.second = 0;
         if (day == curDay) {
-            assginWeek(expect, c, nowHour, nowMinute, nowSecond);
+//            assginWeek(expect, c, nowHour, nowMinute, nowSecond);
         }
         assertReminder("周一五点提醒我", expect);
     }
@@ -413,6 +413,9 @@ public class TestReminder {
         expect.day = 13;
         expect.hour = 8;
         expect.minutes = 0;
+        if (isYearPassed(expect)) {
+            expect.year +=1;
+        }
         assertReminder("九月十三八点提醒我", expect);
     }
     
@@ -721,6 +724,74 @@ public class TestReminder {
 //       expect.daysOfWeek = daysofWeek;
        assertReminder("12月23日中午12点提醒我", expect);
    }
+   
+   static void test_17() {
+       Calendar c = Calendar.getInstance();
+       c.setTimeInMillis(System.currentTimeMillis());
+       int curDay = c.get(Calendar.DAY_OF_MONTH);
+       int curWeekday = c.get(Calendar.DAY_OF_WEEK);
+       int curMonth = c.get(Calendar.MONTH) + 1;
+       int maxMonthDay = c.getActualMaximum(Calendar.DAY_OF_MONTH);
+       int nowHour = c.get(Calendar.HOUR_OF_DAY);
+       int nowMinute = c.get(Calendar.MINUTE);
+       int nowSecond = c.get(Calendar.SECOND);
+       int curYear = c.get(Calendar.YEAR);
+       if (curMonth > Calendar.MONDAY) {
+           
+       }
+       int curDayOfYear = c.get(Calendar.DAY_OF_YEAR);
+       c.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+       c.add(Calendar.WEEK_OF_YEAR, 1);
+       Alarm expect = new Alarm();
+       expect.year = c.get(Calendar.YEAR);
+       expect.month = c.get(Calendar.MONTH) + 1;
+       expect.day = c.get(Calendar.DAY_OF_MONTH);
+       expect.type = Alarm.ALARM_TYPE_ABSOLUTE;
+       expect.repeatType = Alarm.ALARM_REPEAT_TYPE_NONE;
+       expect.hour = 10;
+       expect.minutes = 30;
+       expect.second = 0;
+       expect.ampm = 1;
+
+       assertReminder("下星期一早上10点半提醒我", expect);
+   }
+   static void test_18() {
+       Calendar c = Calendar.getInstance();
+       c.setTimeInMillis(System.currentTimeMillis());
+       int curDay = c.get(Calendar.DAY_OF_MONTH);
+       int curWeekday = c.get(Calendar.DAY_OF_WEEK);
+       int curMonth = c.get(Calendar.MONTH) + 1;
+       int maxMonthDay = c.getActualMaximum(Calendar.DAY_OF_MONTH);
+       int nowHour = c.get(Calendar.HOUR_OF_DAY);
+       int nowMinute = c.get(Calendar.MINUTE);
+       int nowSecond = c.get(Calendar.SECOND);
+       int curYear = c.get(Calendar.YEAR);
+       if (curMonth > Calendar.MONDAY) {
+           
+       }
+       int curDayOfYear = c.get(Calendar.DAY_OF_YEAR);
+       c.set(Calendar.DAY_OF_WEEK, Calendar.TUESDAY);
+       c.add(Calendar.WEEK_OF_YEAR, 1);
+       Alarm expect = new Alarm();
+       expect.year = c.get(Calendar.YEAR);
+       expect.month = c.get(Calendar.MONTH) + 1;
+       expect.day = c.get(Calendar.DAY_OF_MONTH);
+       expect.type = Alarm.ALARM_TYPE_ABSOLUTE;
+       expect.repeatType = Alarm.ALARM_REPEAT_TYPE_NONE;
+       expect.minutes = 30;
+       expect.hour = 10;
+       expect.second = 0;
+       expect.ampm = 1;
+//       DaysOfWeek daysofWeek = new DaysOfWeek(0);
+//       daysofWeek.set(1, true);
+//       daysofWeek.set(2, true);
+//       daysofWeek.set(3, true);
+//       daysofWeek.set(4, true);
+//       daysofWeek.set(5, true);
+//       daysofWeek.set(6, true);
+//       expect.daysOfWeek = daysofWeek;
+       assertReminder("下周二早上10点半提醒我", expect);
+   }
     public static void testReminder() {
         Alarm expect;
         DaysOfWeek daysofWeek;
@@ -733,6 +804,10 @@ public class TestReminder {
         int nowHour = c.get(Calendar.HOUR_OF_DAY);
         int nowMinute = c.get(Calendar.MINUTE);
         int nowSecond = c.get(Calendar.SECOND);
+//    下周一早上10点半提醒我    
+        test_18();
+//        下星期一早上10点半提醒我
+        test_17();
         
         test_16();
         test_15();
@@ -1269,7 +1344,26 @@ public class TestReminder {
         }
         return ret;
     }
+    static boolean isYearPassed(Alarm alarm) {
+        boolean ret = false;
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(System.currentTimeMillis());
+        int nowYear = c.get(Calendar.YEAR);
+        int nowMonth = c.get(Calendar.MONTH);
+        int nowDay = c.get(Calendar.DAY_OF_MONTH);
+        
+        int nowHour = c.get(Calendar.HOUR_OF_DAY);
+        int nowMinute = c.get(Calendar.MINUTE);
+        int nowSecond = c.get(Calendar.SECOND);
+        
+        if (alarm.month < nowMonth ||
+                (alarm.month == nowMonth && alarm.day <nowDay) ||
+                (alarm.month == nowMonth && alarm.day == nowDay && isTimePassed(alarm))) {
+                    ret = true;
+                }
 
+        return ret;
+    }
     static void addOneMonth(Alarm alarm) {
         Calendar c = Calendar.getInstance();
         c.set(Calendar.YEAR, alarm.year);
@@ -1354,6 +1448,9 @@ public class TestReminder {
      */
     public static void main(String[] args) {   
         testReminder();
+//        test_13();
+//        test_reminder_12();
+//test_18();
 //        test_14();
 //        test_15();
 //        test_3();

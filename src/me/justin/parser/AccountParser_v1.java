@@ -149,6 +149,7 @@ public class AccountParser_v1 {
         { "抢了\\D+(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
         { "小费\\D+(\\d+\\.\\d{2}).*给我", "amount=group(1);type=income" },
         { "(\\d+\\.\\d{2})钱.*给我了", "amount=group(1);type=income" },
+        { "费交了(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
       
 //        { "买\\D*(\\d+\\.\\d{2})\\D*(\\d+\\.\\d{2})", "amount=group(2);type=expand" },
 //        { "卖\\D*(\\d+\\.\\d{2})\\D*(\\d+\\.\\d{2})", "amount=group(2);type=income" },

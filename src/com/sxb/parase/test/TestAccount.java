@@ -13,7 +13,8 @@ public class TestAccount {
     public final static int TYPE_INCOME = 2;
     public final static int TYPE_EXPAND = 3;
     public static void testAccout() {
-
+        test("下午回来时，帮我买六个饭团", "0.00", TYPE_UNKNOWN);
+        test("停车费交了15元", "15.00", TYPE_EXPAND);
         test("生活帮2期合同，你给我提交了两个合同，一个是41万，一个是37万，到底用那个", "0.00", TYPE_UNKNOWN);
         test("今天打的57", "57.00", TYPE_EXPAND);
         test("今天付款192元买文具", "192.00", TYPE_EXPAND);

@@ -7,7 +7,11 @@ import com.sxb.parase.data.Memo;
 public class Parser {
     
     public static ParseResult AccountParser(String string) {
-        AccountParserResult  result2 =  AccountParser_v1.parse(string);
+        return AccountParser(string, false);
+    }
+    
+    public static ParseResult AccountParser(String string,boolean is_prefer) {
+        AccountParserResult  result2 =  AccountParser_v1.parse(string,is_prefer);
         ParseResult result = new ParseResult();
         if (result2.isAccount()) {
             Account account = new Account();
@@ -110,7 +114,8 @@ public class Parser {
 //            } else {
 //                result = AccountParser(content);
 //            }
-            result = AccountParser(content);
+            boolean is_prefer = prefer_type == ParseResult.TYPE_ACCOUNT ? true:false;
+            result = AccountParser(content,is_prefer);
         }
         
         return result;

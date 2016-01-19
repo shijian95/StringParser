@@ -176,9 +176,10 @@ public class TestAccount {
         test("这月盈利2000万", "20000000.00", TYPE_INCOME);
         test("老陈打给我2000万", "20000000.00", TYPE_INCOME);
         test("摆摊小赚199", "199.00", TYPE_INCOME);
+        test("今天高速费交了10元钱", "10.00", TYPE_EXPAND);
     }
     private static void test(String input, String expect) {
-        AccountParserResult result = AccountParser_v1.parse(input);
+        AccountParserResult result = AccountParser_v1.parse(input,false);
         String amountString = String.format("%.2f", result.getAmount());
         if (!amountString.equals(expect)) {
             System.err.format("Input:%s \tOutput: type:%s \t%s != %s \n",
@@ -190,7 +191,7 @@ public class TestAccount {
     }
     
     private static void test(String input, String expect, int type) {
-        AccountParserResult result = AccountParser_v1.parse(input);
+        AccountParserResult result = AccountParser_v1.parse(input, false);
         String amountString = String.format("%.2f", result.getAmount());
         if (result.getType()==TYPE_UNKNOWN && type == TYPE_UNKNOWN) {
             System.out.format("Input:%s \tOutput: type:%s \t%s == %s \n",

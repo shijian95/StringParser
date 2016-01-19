@@ -2338,18 +2338,6 @@ public class ReminderParser_v1 {
         "none", "每天","每周","每月","每年","定时","倒计时"
     };
     
-    private static void checkWeek(Alarm expect, Calendar c, int nowHour,
-            int nowMinute, int nowSecond) {
-        if (expect.hour < nowHour || expect.hour == nowHour
-                && expect.minutes <= nowMinute || expect.hour == nowHour
-                && expect.minutes == nowMinute && expect.second <= nowSecond) {
-            c.setTimeInMillis(System.currentTimeMillis());
-            c.add(Calendar.WEEK_OF_YEAR, 1);
-            expect.year = c.get(Calendar.YEAR);
-            expect.month = c.get(Calendar.MONTH) + 1;
-            expect.day = c.get(Calendar.DAY_OF_MONTH);
-        }
-    }
     void log() {
         System.out
         .format("repeatType:%s, year:%d, month:%d, day:%d, " +

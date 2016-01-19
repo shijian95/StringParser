@@ -360,16 +360,16 @@ public class AccountParser_v1 {
         double amount;
     }
     
-    public static AccountParserResult parse(String content) {
+    public static AccountParserResult parse(String content,boolean is_prefer) {
         AccountParserResult result = new AccountParserResult();
         Integer type = TYPE_UNKNOWN;
         result.setType(type);
-        String str1 = removeExcludeWords(content);
-        ArrayList<Element>  words1 = split_by_key_word(str1);
+        String str1 = removeExcludeWords(content); //去掉干扰词汇
+        ArrayList<Element>  words1 = split_by_key_word(str1); //根据关键字分词
         ArrayList<Element>  words2 = new ArrayList<>();
         for (Element word: words1) {
             if (word.type == CONTENT) {
-                ArrayList<Element>  words3 = split_by_digit(word.content);
+                ArrayList<Element>  words3 = split_by_digit(word.content); //提取其中的数字
                 words2.addAll(words3);
             } else {
                 words2.add(word);
@@ -384,16 +384,16 @@ public class AccountParser_v1 {
         for (Element element : words2) {
             if (DEBUG) System.out.format("%s:%s \t\n", TYPE_DESCRIPTION[element.type],element.content );
             if (element.type == DIGIT) {
-                String amountStr = convert2Amount(element.content);
+                String amountStr = convert2Amount(element.content);  //数字转换成金额
                 if (amountStr!=null && !amountStr.equals("")){
                     element.content = amountStr;
                     amount = Double.parseDouble(amountStr);
                     amounts.add(new AmountPos(count, amount));
                 }
             } else if (element.type == INCOME_WORD) {
-                type = TYPE_INCOME;
+                type = TYPE_INCOME; //出现收入关键字
             } else if (element.type == EXPAND_WORD) {
-                type = TYPE_EXPAND;
+                type = TYPE_EXPAND;//出现支出关键字
             }
             count++;
         }
@@ -415,15 +415,16 @@ public class AccountParser_v1 {
             sBuilder.append(e.content);
         }
         String last_string = sBuilder.toString();
-//        System.out.println("结果：" + sBuilder.toString());
-        
+        if (DEBUG) {
+            System.out.println("得到的字符串：" + sBuilder.toString());
+        }
         AccountParserResult ret = parse_amount(last_string);
         if (ret != null) {
             type = ret.getType();
             amount = ret.getAmount();
         }
         
-        if (ret==null && amounts.size() !=0) {
+        if (ret == null && amounts.size() !=0) {
             TwoValue<Integer, Double> retTwoValue = parseType(last_string);
             if (retTwoValue.a != TYPE_UNKNOWN) {
                 type = retTwoValue.a;
@@ -447,6 +448,10 @@ public class AccountParser_v1 {
                 }
             }
         } 
+        if (is_prefer && type == TYPE_UNKNOWN) {
+            //没有解析出类型，默认为支出
+            type = TYPE_EXPAND;
+        }
         result.setType(type);
         result.setAmount(amount);
         return result;

@@ -27,11 +27,8 @@ public class ReminderParser_v1 {
     final static int ASSIST = 8;
     final static int TIME_DIGIT = 9; // 比如 半
     final static int TIME_REPEAT = 10; // 比如 半
-    
     final static int REGULAR_PARSED = 11; // 已经解析过了 符合定义的正则表达式，已经利用正则表达式解析过了
-    
     final static int TIME_COLON = 20;
-    
     final static int DEFAULTHOUR = 9;
     /**
      * 
@@ -49,7 +46,6 @@ public class ReminderParser_v1 {
             put("ALARM_REPEAT_TYPE_YEAR", Alarm.ALARM_REPEAT_TYPE_YEAR);
             put("ALARM_REPEAT_TYPE_INTERVAL", Alarm.ALARM_REPEAT_TYPE_INTERVAL);
             put("ALARM_REPEAT_TYPE_STOPWATCH", Alarm.ALARM_REPEAT_TYPE_STOPWATCH);
-
         }
     };
     
@@ -116,7 +112,7 @@ public class ReminderParser_v1 {
         { "每(星期|礼拜|周)([1-7一二三四五六天日])", "var1=group(2);daysofWeek=func_var2_parseDaysOfWeek;repeatType=ALARM_REPEAT_TYPE_WEEK" },
         { "(星期|礼拜|周)([1-7一二三四五六天日])到(星期|礼拜|周)([1-7一二三四五六天日])",  "var1=group(2);var2=group(4);daysofWeek=func_var2_parseDaysOfWeek;repeatType=ALARM_REPEAT_TYPE_WEEK" }, 
         { "下(星期|礼拜|周)([1-6一二三四五六天日])",  "var1=group(2);weekday=func_var1_getWeekDay;addWeek=1" }, 
-        { "(星期|礼拜|周)([1-6一二三四五六天日])", "var1=group(2);weekday=func_var1_parseWeekDay;" },
+        { "(星期|礼拜|周)([1-6一二三四五六天日])", "var1=group(2);weekday=func_var1_parseWeekDay;type=2" },
    };
     
     final static Map<String, Integer> time_key_type_map_1 = new HashMap<String, Integer>() {
@@ -676,7 +672,9 @@ public class ReminderParser_v1 {
     }
     
     
-    
+    /**
+     * filed definition
+     */
     
     int year = 0;
     int month = 0;
@@ -883,10 +881,10 @@ public class ReminderParser_v1 {
                 ret = Calendar.TUESDAY;
         } else if(weekday_str.equalsIgnoreCase("三")||
                 weekday_str.equalsIgnoreCase("3")){
-                ret = Calendar.THURSDAY;
+                ret = Calendar.WEDNESDAY;
         } else if(weekday_str.equalsIgnoreCase("四")||
                 weekday_str.equalsIgnoreCase("4")){
-                ret = Calendar.WEDNESDAY;
+                ret = Calendar.THURSDAY;
         } else if(weekday_str.equalsIgnoreCase("五")||
                 weekday_str.equalsIgnoreCase("5")){
                 ret = Calendar.FRIDAY;
@@ -1431,8 +1429,8 @@ public class ReminderParser_v1 {
                 }
             }
             
-            //本月末的情况,如果时间已经过去，那么顺延到下月末
-            if (day == -1 && alarm.month == nowMonth) {
+            //本月末的情况,如果今天就是月末时间已经过去，那么顺延到下月末
+            if (day == -1 && alarm.day == nowMonthDay && alarm.month == nowMonth) {
                 if (isTimePassed(alarm)) {
                     addOneMonth(alarm);
                 }
@@ -2343,6 +2341,7 @@ public class ReminderParser_v1 {
         .format("repeatType:%s, year:%d, month:%d, day:%d, " +
         		"hour:%d, minutes:%d second:%d " +
         		"defaultHour:%d addDay:%d dayofweek:%s weekday:%d addWeek:%d\n",
+        		
                 repeat_type_strs[repeatType], year, month, day, hour,minute, second, 
                 defaultHour, addDay,daysofWeek.toString(true), weekday, addWeek);
     }

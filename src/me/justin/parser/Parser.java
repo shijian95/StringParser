@@ -105,7 +105,15 @@ public class Parser {
     }
     
     public  static ParseResult paraseContent(String content, int prefer_type) {
-        ParseResult result = paraseContent(content);
+        ParseResult result = null;
+        if(content.length()>30) {
+            //如果字符长度超过30，那么默认为备忘
+            Memo memo = new Memo();
+            memo.setContent(content);
+            result = new ParseResult(ParseResult.TYPE_MEMO, memo);
+            return result;
+        }
+        result = paraseContent(content);
         if (result.getType() == ParseResult.TYPE_MEMO) {
 //            if (prefer_type == ParseResult.TYPE_REMIND) {
 //                result = RemindParser(content);

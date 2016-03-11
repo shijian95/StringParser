@@ -108,16 +108,17 @@ public class AccountParser_v1 {
         return false;
     }
     final static String[] REGS_STRINGS_EXCULDE={
-        "[一两二三四五六七八九十零\\d]+[笔把个位人次批伙场双件斤盒张天子套支台下期]" 
+        "[一两二三四五六七八九十零\\d]+[笔把个位人次批伙场双件斤盒张天子套支台下期副幅]" 
         + "|" + "[一两二三四五六七八九十零\\d]+月[一两二三四五六七八九十零\\d]+日"
         + "|" + "[一两二三四五六七八九十零\\d]+年",
-        "[\\d][笔把个位人次批伙场双件斤盒张天子套支台下期]"
+        "[\\d][笔把个位人次批伙场双件斤盒张天子套支台下期副幅]"
     };
     
     
     final static String REGEXS_ACCOUNT[][] = {
         { "(花)(\\d+\\.\\d{2})", "amount=group(2);type=expand" },
         { "(花了)(\\d+\\.\\d{2})", "amount=group(2);type=expand" },
+        { "(亏了)(\\d+\\.\\d{2})", "amount=group(2);type=expand" },
         { "(还给\\D*)(\\d+\\.\\d{2})", "amount=group(2);type=expand" },
         { "(赚回)(\\d+\\.\\d{2})", "amount=group(2);type=income" },
         { "(赚)(\\d+\\.\\d{2})", "amount=group(2);type=income" },
@@ -133,6 +134,7 @@ public class AccountParser_v1 {
         { "我还了(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
         { "还了(\\d+\\.\\d{2})给我", "amount=group(1);type=income" },
         { "还了(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "还了我(\\d+\\.\\d{2})", "amount=group(1);type=income" },
         { "返还\\D*(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
         { "订购\\D*(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
         { "报销.*费(\\d+\\.\\d{2})", "amount=group(1);type=income" },
@@ -150,6 +152,30 @@ public class AccountParser_v1 {
         { "小费\\D+(\\d+\\.\\d{2}).*给我", "amount=group(1);type=income" },
         { "(\\d+\\.\\d{2})钱.*给我了", "amount=group(1);type=income" },
         { "费交了(\\d+\\.\\d{2})", "amount=group(1);type=expand" },
+        { "盈利\\D*(\\d+\\.\\d{2})\\D*", "amount=group(1);type=income" },
+        { "收到\\D*(\\d+\\.\\d{2})\\D*", "amount=group(1);type=income" },
+        { "拿(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "拿了(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "捡了(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "拿过来(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "拿回来(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "拿钱回来(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "取回来(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "取(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "提款(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "提款回来(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "取钱(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "取款(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "存款(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "存进来(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "出售\\D*(\\d+\\.\\d{2})\\D*", "amount=group(1);type=income" },
+        { "收押金(\\d+\\.\\d{2})\\D*", "amount=group(1);type=income" },
+        { "发福利(\\d+\\.\\d{2})\\D*", "amount=group(1);type=income" },
+        { "发薪水(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "到帐(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "借了(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "给了(\\d+\\.\\d{2})", "amount=group(1);type=income" },
+        { "省了(\\d+\\.\\d{2})", "amount=group(1);type=income" },
       
 //        { "买\\D*(\\d+\\.\\d{2})\\D*(\\d+\\.\\d{2})", "amount=group(2);type=expand" },
 //        { "卖\\D*(\\d+\\.\\d{2})\\D*(\\d+\\.\\d{2})", "amount=group(2);type=income" },
@@ -215,6 +241,7 @@ public class AccountParser_v1 {
         "(?<=退我)\\d+\\.\\d{2}",
         "(?<=得到)\\d+\\.\\d{2}",
         "(?<=收进)\\d+\\.\\d{2}",
+        "(?<=抢了)\\d+\\.\\d{2}",
         };
     
     final static String PATTERNS_KEYWORD_INCOME[] = {

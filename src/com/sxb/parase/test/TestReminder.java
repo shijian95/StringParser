@@ -23,6 +23,155 @@ public class TestReminder {
     final static String repeat_type_strs[] = { "none", "每天", "每周", "每月", "每年",
             "定时", "倒计时" };
 
+    static void test_28() {
+        Alarm expect;
+        expect = new Alarm();
+        expect.type = Alarm.ALARM_TYPE_RELATIVE;
+        expect.repeatType = Alarm.ALARM_REPEAT_TYPE_INTERVAL;
+        expect.interval = 60*60*1000;
+        assertReminder("下星期二提醒我联系小王", expect);
+    }
+    
+    static void test_27() {
+        Alarm expect;
+        expect = new Alarm();
+        expect.type = Alarm.ALARM_TYPE_RELATIVE;
+        expect.repeatType = Alarm.ALARM_REPEAT_TYPE_INTERVAL;
+        expect.interval = 60*60*1000;
+        assertReminder("每小时提醒我", expect);
+    }
+    static void test_26() {
+        Alarm expect;
+        expect = new Alarm();
+        expect.type = Alarm.ALARM_TYPE_RELATIVE;
+        expect.repeatType = Alarm.ALARM_REPEAT_TYPE_INTERVAL;
+        expect.interval = 30*60*1000;
+        assertReminder("每30分钟提醒我", expect);
+    }
+
+    static void test_25() {
+        Alarm expect;
+        DaysOfWeek daysofWeek;
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(System.currentTimeMillis());
+        int day = 0;
+        int curDayOfYear = c.get(Calendar.DAY_OF_YEAR);
+        int curWeekday = c.get(Calendar.DAY_OF_WEEK);
+        int maxMonthDay = c.getActualMaximum(Calendar.DAY_OF_MONTH);
+        int nowHour = c.get(Calendar.HOUR_OF_DAY);
+        int nowMinute = c.get(Calendar.MINUTE);
+        int nowSecond = c.get(Calendar.SECOND);
+
+        expect = new Alarm();
+        c.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        c.add(Calendar.WEEK_OF_YEAR, 1);
+        day = c.get(Calendar.DAY_OF_YEAR);
+        if (day < curDayOfYear) {
+            c.add(Calendar.WEEK_OF_YEAR, 1);
+        }
+        expect.type = Alarm.ALARM_TYPE_ABSOLUTE;
+        expect.year = c.get(Calendar.YEAR);
+        expect.month = c.get(Calendar.MONTH) + 1;
+        expect.day = c.get(Calendar.DAY_OF_MONTH);
+        expect.hour = 16;
+        expect.minutes = 6;
+        if ((day == curDayOfYear)
+                && (expect.hour < nowHour || expect.hour == nowHour
+                        && expect.minutes <= nowMinute || expect.hour == nowHour
+                        && expect.minutes == nowMinute
+                        && expect.second <= nowSecond)) {
+            c.add(Calendar.WEEK_OF_YEAR, 1);
+        }
+        expect.year = c.get(Calendar.YEAR);
+        expect.month = c.get(Calendar.MONTH) + 1;
+        expect.day = c.get(Calendar.DAY_OF_MONTH);
+        expect.ampm = 2;
+        assertReminder("下周一16:06提醒我", expect);
+    }
+    
+    static void test_24() {
+        Alarm expect;
+        DaysOfWeek daysofWeek;
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(System.currentTimeMillis());
+        int day = 0;
+        int curDayOfYear = c.get(Calendar.DAY_OF_YEAR);
+        int curWeekday = c.get(Calendar.DAY_OF_WEEK);
+        int maxMonthDay = c.getActualMaximum(Calendar.DAY_OF_MONTH);
+        int nowHour = c.get(Calendar.HOUR_OF_DAY);
+        int nowMinute = c.get(Calendar.MINUTE);
+        int nowSecond = c.get(Calendar.SECOND);
+
+        expect = new Alarm();
+        c.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        day = c.get(Calendar.DAY_OF_YEAR);
+        if (day < curDayOfYear) {
+            c.add(Calendar.WEEK_OF_YEAR, 1);
+        }
+        expect.type = Alarm.ALARM_TYPE_ABSOLUTE;
+        expect.year = c.get(Calendar.YEAR);
+        expect.month = c.get(Calendar.MONTH) + 1;
+        expect.day = c.get(Calendar.DAY_OF_MONTH);
+        expect.hour = 23;
+        expect.minutes = 30;
+        if ((day == curDayOfYear)
+                && (expect.hour < nowHour || expect.hour == nowHour
+                        && expect.minutes <= nowMinute || expect.hour == nowHour
+                        && expect.minutes == nowMinute
+                        && expect.second <= nowSecond)) {
+            c.add(Calendar.WEEK_OF_YEAR, 1);
+        }
+        expect.year = c.get(Calendar.YEAR);
+        expect.month = c.get(Calendar.MONTH) + 1;
+        expect.day = c.get(Calendar.DAY_OF_MONTH);
+        expect.ampm = 2;
+        assertReminder("周一深夜11:30提醒我", expect);
+    }
+    
+    static void test_23() {
+        Alarm expect;
+        DaysOfWeek daysofWeek;
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(System.currentTimeMillis());
+        int day = 0;
+        int curDayOfYear = c.get(Calendar.DAY_OF_YEAR);
+        int curWeekday = c.get(Calendar.DAY_OF_WEEK);
+        int maxMonthDay = c.getActualMaximum(Calendar.DAY_OF_MONTH);
+        int nowHour = c.get(Calendar.HOUR_OF_DAY);
+        int nowMinute = c.get(Calendar.MINUTE);
+        int nowSecond = c.get(Calendar.SECOND);
+
+        expect = new Alarm();
+        expect.type = Alarm.ALARM_TYPE_RELATIVE;
+        expect.repeatType = Alarm.ALARM_REPEAT_TYPE_STOPWATCH;
+        expect.year = 0;
+        expect.month = 0;
+        expect.day = 0;
+        expect.hour = 0;
+        expect.minutes = 0;
+        expect.second = 0;
+        expect.ampm = 0;
+        expect.minutes = 15;
+        expect.second = 0;
+        assertReminder("等一下提醒我", expect);
+    }
+    
+    static void test_22() {
+        Alarm expect;
+        DaysOfWeek daysofWeek;
+       Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(System.currentTimeMillis());
+        int day = 0;
+        int curDayOfYear = c.get(Calendar.DAY_OF_YEAR);
+        int curWeekday = c.get(Calendar.DAY_OF_WEEK);
+        int maxMonthDay = c.getActualMaximum(Calendar.DAY_OF_MONTH);
+        int nowHour = c.get(Calendar.HOUR_OF_DAY);
+        int nowMinute = c.get(Calendar.MINUTE);
+        int nowSecond = c.get(Calendar.SECOND);
+        expect = new Alarm();
+        assertReminder("提前提醒我", expect);
+    }
+    
     static void test_21() {
         Alarm expect;
         DaysOfWeek daysofWeek;
@@ -1391,7 +1540,7 @@ public class TestReminder {
         if (item.getType() == ParseResult.TYPE_REMIND) {
             alarm = (Alarm) item.getObject();
         } else {
-            System.err.print("Wrong Type:" + input);
+            System.err.print("Wrong Type:" + item.getType() + input);
             return;
         }
         long interval_hours = alarm.interval / (1000 * 60 * 60);
@@ -1506,26 +1655,22 @@ public class TestReminder {
 
         test_20();
         test_21();
+        
+        test_22();
+        test_23();
+        test_24();
+        test_25();
+        test_26();
+        test_27();
     }
 
     /**
      * @param args
      */
     public static void main(String[] args) {
-        testReminder();
+//        test_28();
         
-        // test_18();
-        // test_19();
-        // test_13();
-        // test_reminder_12();
-        // test_18();
-        // test_14();
-        // test_15();
-        // test_3();
-        // test_4();
-        // test_9();
-        // test_12();
-        // test_13();
+        testReminder();
     }
 
 }

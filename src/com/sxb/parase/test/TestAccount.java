@@ -13,6 +13,9 @@ public class TestAccount {
     public final static int TYPE_INCOME = 2;
     public final static int TYPE_EXPAND = 3;
     public static void testAccout() {
+        test("昨天卖货价低亏了1100元", "1100.00", TYPE_EXPAND);
+        test("前天股市盈利一笔51948元", "51948.00", TYPE_INCOME);
+        test("今天在微信群里抢了100元红包", "100.00", TYPE_INCOME);
         test("下午回来时，帮我买六个饭团", "0.00", TYPE_UNKNOWN);
         test("停车费交了15元", "15.00", TYPE_EXPAND);
         test("生活帮2期合同，你给我提交了两个合同，一个是41万，一个是37万，到底用那个", "0.00", TYPE_UNKNOWN);
@@ -177,6 +180,18 @@ public class TestAccount {
         test("老陈打给我2000万", "20000000.00", TYPE_INCOME);
         test("摆摊小赚199", "199.00", TYPE_INCOME);
         test("今天高速费交了10元钱", "10.00", TYPE_EXPAND);
+        test("卖了一幅字画，挣了2000元", "2000.00", TYPE_INCOME);
+        test("王蕾还了我100元", "100.00", TYPE_INCOME);
+        test("收到压岁钱1800元", "1800.00", TYPE_INCOME);
+        test("今早捡了10元", "10.00", TYPE_INCOME);
+        test("今天从张三那儿拿1000", "1000.00", TYPE_INCOME);
+        test("今天从张三那儿拿了1000", "1000.00", TYPE_INCOME);
+        test("从张三那取30回来", "30.00", TYPE_INCOME);
+        test("从张三那取30回来", "30.00", TYPE_INCOME);
+        test("今天出门买衣服省了8元", "8.00", TYPE_INCOME);
+        test("今天出差借了2000块", "2000.00", TYPE_INCOME);
+        test("女儿给了100块钱", "100.00", TYPE_INCOME);
+        
     }
     private static void test(String input, String expect) {
         AccountParserResult result = AccountParser_v1.parse(input,false);

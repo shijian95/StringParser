@@ -111,8 +111,10 @@ public class ReminderParser_v1 {
     final static String[][] key_map_reg = {
         { "每(星期|礼拜|周)([1-7一二三四五六天日])", "var1=group(2);daysofWeek=func_var2_parseDaysOfWeek;repeatType=ALARM_REPEAT_TYPE_WEEK" },
         { "(星期|礼拜|周)([1-7一二三四五六天日])到(星期|礼拜|周)([1-7一二三四五六天日])",  "var1=group(2);var2=group(4);daysofWeek=func_var2_parseDaysOfWeek;repeatType=ALARM_REPEAT_TYPE_WEEK" }, 
-        { "下(星期|礼拜|周)([1-6一二三四五六天日])",  "var1=group(2);weekday=func_var1_getWeekDay;addWeek=1" }, 
+        { "下(星期|礼拜|周)([1-6一二三四五六天日])",  "var1=group(2);weekday=func_var1_getWeekDay;addWeek=1;defaultHour=9;type=2" }, 
         { "(星期|礼拜|周)([1-6一二三四五六天日])", "var1=group(2);weekday=func_var1_parseWeekDay;type=2" },
+        { "每小时", "repeatType=ALARM_REPEAT_TYPE_INTERVAL;intervalHour=1" },
+        { "每个小时", "repeatType=ALARM_REPEAT_TYPE_INTERVAL;intervalHour=1" },
    };
     
     final static Map<String, Integer> time_key_type_map_1 = new HashMap<String, Integer>() {
@@ -133,6 +135,7 @@ public class ReminderParser_v1 {
             put("：", TIME_COLON);
             put("至", DURATION);
             put("到", DURATION);
+            put("每", TIME_REPEAT);
         }
     };
     final static Map<String, Integer> time_key_type_map_2 = new HashMap<String, Integer>() {
@@ -165,6 +168,7 @@ public class ReminderParser_v1 {
             put("黄昏", TIME_TIME);
             put("傍晚", TIME_TIME);
             put("夜间", TIME_TIME);
+            put("深夜", TIME_TIME);
             put("半夜", TIME_TIME);
             put("明早", TIME_TIME);
             put("头晌", TIME_TIME);
@@ -240,6 +244,7 @@ public class ReminderParser_v1 {
             put("每周天", TIME_REPEAT);
             put("每周末", TIME_REPEAT);
             put("每周末", TIME_REPEAT);
+            put("每小时", TIME_REPEAT);
             
             put("早饭后", TIME_TIME);
             put("午饭后", TIME_TIME);
@@ -321,6 +326,7 @@ public class ReminderParser_v1 {
             
             //固定时间的模糊字词,用户可以设置
             put("今晚", "defaultHour=20;type=2;ampm=2");
+            put("深夜", "defaultHour=23;type=2;ampm=2");
             put("下午",  "defaultHour=14;type=2;ampm=2");
             put("早晨",  "defaultHour=7;type=2;ampm=1");
             put("早上",  "defaultHour=7;type=2;ampm=1");
@@ -440,8 +446,10 @@ public class ReminderParser_v1 {
         {"每月",  "repeatType=3"},
         {"每年",  "repeatType=4"},
         {"每隔",  "repeatType=5"},
+        {"每",  "repeatType=5"},
         {"每周天", "repeatType=2;daysofWeek=6"},
         {"每周日", "repeatType=2;daysofWeek=6"},
+        {"每小时", "repeatType=5"},
     };
     
     final static HashMap<String, String> rule_others = new LinkedHashMap<String, String>() {
@@ -663,6 +671,14 @@ public class ReminderParser_v1 {
         value = map.get("daysofWeek");
         if (value!=null) {
             daysofWeek.set(value,true);
+        }
+        value = map.get("intervalHour");
+        if (value!=null) {
+            intervalHour = value;
+        }
+        value = map.get("intervalMinute");
+        if (value!=null) {
+            intervalMinute = value;
         }
         return true;
     }
@@ -1045,7 +1061,7 @@ public class ReminderParser_v1 {
                 handled = true;
                 Element next_next = null;
                 if (current.content.equalsIgnoreCase("提前")) {
-                    if (i < words.size() - 1) {
+                    if (i < words.size() - 2) {
                         next_next = words.get(i + 2);
                     }
                     TimeInfo time = new TimeInfo();
@@ -2186,6 +2202,16 @@ public class ReminderParser_v1 {
                 int v = Integer.parseInt(value);
                 daysofWeek.set(v-1,true);
             }
+        }
+        
+        value = map.get("intervalHour");
+        if (value!=null) {
+            intervalHour = Integer.parseInt(value);
+        }
+        
+        value = map.get("defaultHour");
+        if (value!=null) {
+            defaultHour = Integer.parseInt(value);
         }
         return true;
     }

@@ -115,7 +115,16 @@ public class ReminderParser_v1 {
         { "(星期|礼拜|周)([1-6一二三四五六天日])", "var1=group(2);weekday=func_var1_parseWeekDay;type=2" },
         { "每小时", "repeatType=ALARM_REPEAT_TYPE_INTERVAL;intervalHour=1" },
         { "每个小时", "repeatType=ALARM_REPEAT_TYPE_INTERVAL;intervalHour=1" },
+        { "每逢([12][0123456789])号", "repeatType=ALARM_REPEAT_TYPE_MONTH;day=group(1)" },
+        { "每逢3[01]号", "repeatType=ALARM_REPEAT_TYPE_MONTH;day=group(1)" },
+        { "每逢(0?[1\\-9])号", "repeatType=ALARM_REPEAT_TYPE_MONTH;day=group(1)" },
+        { "([12][0123456789]|3[01]|0?[1\\-9])号到([12][0123456789]|3[01]|0?[1\\-9])号", 
+            "repeatType=ALARM_REPEAT_TYPE_MONTH;var1=group(1);var2=group(2),day=group(1)" },
    };
+    
+    final static String[][] key_map_reg_hour_minute_second = {
+        {"%reHourofdayNumber(:|：)%reMinuteNumber(:|：)%reSecondNumber",""}
+    };
     
     final static Map<String, Integer> time_key_type_map_1 = new HashMap<String, Integer>() {
         private static final long serialVersionUID = 1L;
@@ -722,6 +731,7 @@ public class ReminderParser_v1 {
     
     int repeatType = Alarm.ALARM_REPEAT_TYPE_NONE;
     int type = Alarm.ALARM_TYPE_RELATIVE;
+    int repeatTimes=-1; //重复次数
     
     int len = 1;
     int weekday = -1;

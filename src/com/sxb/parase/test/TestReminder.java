@@ -23,6 +23,67 @@ public class TestReminder {
     final static String repeat_type_strs[] = { "none", "每天", "每周", "每月", "每年",
             "定时", "倒计时" };
 
+
+    static void test_32() {
+        Alarm expect;
+        expect = new Alarm();
+        expect.type = Alarm.ALARM_TYPE_RELATIVE;
+        expect.repeatType = Alarm.ALARM_REPEAT_TYPE_MONTH;
+        expect.year = 0;
+        expect.month = 0;
+        expect.day = 10;
+        expect.hour = DEFAULTHOUR;
+        expect.minutes = 0;
+        expect.second = 0;
+        expect.ampm = 0;
+        assertReminder("14号到17号，每天上午8点提醒我", expect);
+    }
+    
+    static void test_31() {
+        Alarm expect;
+        expect = new Alarm();
+        expect.type = Alarm.ALARM_TYPE_RELATIVE;
+        expect.repeatType = Alarm.ALARM_REPEAT_TYPE_MONTH;
+        expect.year = 0;
+        expect.month = 0;
+        expect.day = 10;
+        expect.hour = DEFAULTHOUR;
+        expect.minutes = 0;
+        expect.second = 0;
+        expect.ampm = 0;
+        assertReminder("每月十号，提醒我领工资", expect);
+    }
+    
+    static void test_30() {
+        Alarm expect;
+        expect = new Alarm();
+        expect.type = Alarm.ALARM_TYPE_RELATIVE;
+        expect.repeatType = Alarm.ALARM_REPEAT_TYPE_MONTH;
+        expect.year = 0;
+        expect.month = 0;
+        expect.day = 1;
+        expect.hour= 9;
+        expect.minutes = 0;
+        expect.second = 0;
+        expect.ampm = 1;
+        assertReminder("每逢1号，上午9点提醒我", expect);
+    }
+    
+    static void test_29() {
+        Alarm expect;
+        expect = new Alarm();
+        expect.type = Alarm.ALARM_TYPE_RELATIVE;
+        expect.repeatType = Alarm.ALARM_REPEAT_TYPE_MONTH;
+        expect.year = 0;
+        expect.month = 0;
+        expect.day = 15;
+        expect.hour= 9;
+        expect.minutes = 0;
+        expect.second = 0;
+        expect.ampm = 1;
+        assertReminder("每逢15号，上午9点提醒我", expect);
+    }
+    
     static void test_28() {
         Alarm expect;
         expect = new Alarm();
@@ -1662,6 +1723,9 @@ public class TestReminder {
         test_25();
         test_26();
         test_27();
+        test_28();
+        test_29();
+        test_30();
     }
 
     /**
@@ -1669,8 +1733,8 @@ public class TestReminder {
      */
     public static void main(String[] args) {
 //        test_28();
-        
-        testReminder();
+        test_32();
+//        testReminder();
     }
 
 }
